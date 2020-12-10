@@ -1,67 +1,41 @@
-use reqwest::{Client as HttpClient, StatusCode, Error as HttpError, Response};
+use reqwest::{Client as HttpClient, Result as HttpResult};
 use std::sync::Arc;
-use serde_json::json;
 use serde::Deserialize;
-use crate::response::ApiResponse;
-use crate::model::error::Error404;
-use crate::error::api::ResponseError;
+use crate::ApiResponse;
+use crate::model::error::*;
+use crate::make_request;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
 pub struct Images {
-    token: String,
     pub http: Arc<HttpClient>
 }
 
 impl Images {
-    pub fn new(token: String, http_client: Arc<HttpClient>) -> Self {
+    pub fn new(http_client: Arc<HttpClient>) -> Self {
         Self {
-            token,
             http: http_client
         }
     }
 
-    pub async fn random_image(&self, tag: impl ToString, nsfw: bool) -> Result<ApiResponse<Image>, HttpError>{
-        return match self.http.clone().get("/images/random-image")
-            .json(&json!({"tag": tag.to_string(), "nsfw": nsfw}))
-            .send()
-            .await {
-            Err(e) => { Err(e) },
-            Ok(res) => {
-                match res.status() {
-                    StatusCode(e) => {
-                        return match e {
-                            200u16 => {
-                                let image = res.json::<Image>().await?;
-                                Ok(ApiResponse::Success(image))
-                            },
-                            _ => {
-                                let error = res.json::<Error404>().await?;
-                                Ok(ApiResponse::Failed(ResponseError::E404(error)))
-                            }
-                        }
-                    }
-                    _ => {
-                        let error = res.json::<Error404>().await?;
-                        Ok(ApiResponse::Failed(ResponseError::E404(error)))
-                    }
-                }
-            }
-        };
+    pub async fn random_image(&self, tag: impl ToString, nsfw: bool) -> HttpResult<ApiResponse<Image, Error404>>{
+        let builder = self.http.clone().get("/images/random-image")
+            .query(&[("tag", tag.to_string())])
+            .query(&[("nsfw", nsfw)]);
+
+
+        make_request::<Image, Error404>(builder).await
     }
 
-    pub async fn random_meme(&self) -> Result<RedditImage, HttpError>{
-        return match self.http.clone().get("/images/random-meme")
+    pub async fn random_meme(&self) -> HttpResult<RedditImage>{
+        let response = self.http.clone().get("/images/random-meme")
             .send()
-            .await {
-            Err(e) => { Err(e) },
-            Ok(res) => {
-                let image = res.json::<RedditImage>().await?;
-                Ok(image)
-            }
-        };
+            .await?;
+
+        let image = response.json::<RedditImage>().await?;
+        Ok(image)
     }
 
-    pub async fn random_aww(&self) -> Result<RedditImage, HttpError>{
+    pub async fn random_aww(&self) -> HttpResult<RedditImage>{
         return self.http.clone().get("/images/random-aww")
             .send()
             .await?
@@ -69,30 +43,52 @@ impl Images {
             .await
     }
 
-    pub async fn random_reddit(&self, subreddit: impl ToString, remove_nsfw: bool, span: SpanType) -> Result<ApiResponse<RedditImage>, HttpError>{
-        let response = self.http.clone().get(format!("/images/rand-reddit/{}", subreddit.to_string()).as_str())
-            .json(&json!({"remove_nsfw": remove_nsfw, "span": span}))
+    pub async fn random_reddit(&self, subreddit: impl ToString, remove_nsfw: bool, span: SpanType) -> HttpResult<ApiResponse<RedditImage, Error404>>{
+        let builder = self.http.clone().get(format!("/images/rand-reddit/{}", subreddit.to_string()).as_str())
+            .query(&[("remove_nsfw", remove_nsfw)])
+            .query(&[("span", span.to_string())]);
+
+        make_request::<RedditImage, Error404>(builder).await
+    }
+
+    pub async fn random_wikihow(&self) -> HttpResult<WikiHowImage> {
+        return self.http.clone().get("/images/random-wikihow")
+            .send()
+            .await?
+            .json::<WikiHowImage>()
+            .await
+    }
+
+    pub async fn get_tags(&self) -> HttpResult<TagList> {
+        return self.http.clone().get("/images/tags")
+            .send()
+            .await?
+            .json::<TagList>()
+            .await
+    }
+
+    pub async fn get_image(&self, sf: impl AsRef<str>) -> HttpResult<ApiResponse<Image, Error404>> {
+        let builder = self.http.clone().get(format!("/images/image/{}", sf.as_ref()).as_str());
+
+        make_request::<Image, Error404>(builder).await
+    }
+
+    pub async fn get_tag(&self, tag: impl AsRef<str>) -> HttpResult<ApiResponse<TagList, Error404>> {
+        let builder = self.http.clone().get(format!("/images/tags/{}", tag.as_ref()).as_str());
+
+        make_request::<TagList, Error404>(builder).await
+    }
+
+    pub async fn random_nsfw(&self, gifs: bool) -> HttpResult<RedditImage> {
+        let response = self.http.clone().get("/images/random-nsfw")
+            .query(&[("gifs", gifs)])
             .send()
             .await?;
 
-        return match response.status() {
-            StatusCode(e) => {
-                match e {
-                    200u16 => {
-                        let image = response.json::<RedditImage>().await?;
-                        Ok(ApiResponse::Success(image))
-                    },
-                    _ => {
-                        let error = response.json::<Error404>().await?;
-                        Ok(ApiResponse::Failed(ResponseError::E404(error)))
-                    }
-                }
-            }
-        }
+        response.json::<RedditImage>().await
     }
 }
 
-#[derive(Deserialize)]
 pub enum SpanType {
     Hour,
     Day,
@@ -136,4 +132,25 @@ pub struct RedditImage {
     pub nsfw: bool,
     pub author: String,
     pub awards: u64
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct WikiHowImage {
+    pub url: String,
+    pub title: String,
+    pub nsfw: bool,
+    pub article_url: String
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct TagModel {
+    pub name: String,
+    pub nsfw: bool,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct TagList {
+    pub models: Option<Vec<TagModel>>,
+    pub tags: Vec<String>,
+    pub nsfw_tags: Option<Vec<String>>
 }

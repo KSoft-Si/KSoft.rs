@@ -10,13 +10,18 @@ edition = "2018"
 
 [dependencies.serde]
 version = "1.0.117"
+features = ["derive"]
 
 [dependencies.serde_json]
 version = "1.0.59"
 
 [dependencies.reqwest]
 version = "0.10.8"
+features = ["json"]
 
 [dependencies.tokio]
 version = "0.2.22"
 features = ["full"]
+
+[dependencies.async-trait]
+version = "0.1.42"

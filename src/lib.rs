@@ -1,16 +1,23 @@
 pub mod images;
 pub mod model;
-pub mod error;
-pub mod response;
+pub mod bans;
+pub mod kumo;
 
-use crate::images::Images;
-use reqwest::Client as HttpClient;
+use crate::{
+    images::Images,
+    bans::Bans,
+    kumo::Kumo
+};
+use reqwest::{Client as HttpClient, RequestBuilder};
 use std::sync::Arc;
 use reqwest::header::HeaderMap;
+use serde::de::DeserializeOwned;
 
 pub struct Client {
     pub token: String,
     pub images: Images,
+    pub bans: Bans,
+    pub kumo: Kumo,
     pub http: Arc<HttpClient>
 }
 
@@ -22,8 +29,30 @@ impl Client {
 
         Self {
             token: token.to_string(),
-            images: Images::new(token.to_string(), Arc::clone(&http_client)),
+            images: Images::new(Arc::clone(&http_client)),
+            bans: Bans::new(Arc::clone(&http_client)),
+            kumo: Kumo::new(Arc::clone(&http_client)),
             http: http_client
         }
     }
+}
+
+pub(crate) async fn make_request<S: DeserializeOwned, E: DeserializeOwned>(c: RequestBuilder) -> reqwest::Result<ApiResponse<S, E>> {
+    let response = c.send().await?;
+
+    return match response.status().as_u16() {
+        200u16 => {
+            let data = response.json::<S>().await?;
+            Ok(ApiResponse::Success(data))
+        },
+        _ => {
+            let err = response.json::<E>().await?;
+            Ok(ApiResponse::Failed(err))
+        }
+    }
+}
+
+pub enum ApiResponse<S, E> {
+    Success(S),
+    Failed(E)
 }

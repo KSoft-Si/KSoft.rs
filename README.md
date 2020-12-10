@@ -1,17 +1,17 @@
 # KSoft.rs
 
-A [KSoft](https://api.ksoft.si/) api wrapper witten in pure Rust
+A [KSoft](https://api.ksoft.si/) api wrapper written in pure Rust
 
 #Usage
 
-#Cargo.toml
+# Cargo.toml
 ```toml
 [dependencies.ksoft]
 git = ""
 branch = "master"
 ```
 
-#Usage example
+# Usage example
 ```rust
 use ksoft;
 ```
