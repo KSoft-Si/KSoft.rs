@@ -2,7 +2,7 @@
 
 A [KSoft](https://api.ksoft.si/) api wrapper written in pure Rust
 
-#Usage
+# Usage
 
 # Cargo.toml
 ```toml
