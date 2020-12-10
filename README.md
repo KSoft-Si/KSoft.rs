@@ -15,3 +15,5 @@ branch = "master"
 ```rust
 use ksoft;
 ```
+
+Todo: Add song endpoints and finish the usage example
