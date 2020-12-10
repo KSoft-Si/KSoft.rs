@@ -34,62 +34,17 @@ impl Kumo {
 #[derive(Clone, Debug, Deserialize)]
 pub struct GisResponse {
     pub error: bool,
-    pub status: u16,
+    pub code: u16,
     pub data: GisResponseData
 }
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct GisResponseData {
-    pub time: String,
-    pub summary: String,
-    pub icon: String,
-    #[serde(rename = "precipIntensity")]
-    pub precip_intensity: u16,
-    #[serde(rename = "precipProbability")]
-    pub precip_probability: u16,
-    pub temperature: f64,
-    #[serde(rename = "apparentTemperature")]
-    pub apparent_temperature: f64,
-    #[serde(rename = "dewPoint")]
-    pub dew_point: f64,
-    pub humidity: f32,
-    pub pressure: f32,
-    #[serde(rename = "windSpeed")]
-    pub wind_speed: f64,
-    #[serde(rename = "windGust")]
-    pub wind_gust: f64,
-    #[serde(rename = "windBearing")]
-    pub wind_bearing: u32,
-    #[serde(rename = "cloudCover")]
-    pub cloud_cover: f32,
-    #[serde(rename = "uvIndex")]
-    pub uv_index: u8,
-    pub visibility: f32,
-    pub ozone: f64,
-    #[serde(rename = "sunriseTime")]
-    pub sunrise_time: Option<String>,
-    #[serde(rename = "sunsetTime")]
-    pub sunset_time: Option<String>,
-    pub icon_url: String,
-    pub alerts: Vec<GisResponseAlerts>,
-    pub units: String,
-    pub location: GisResponseLocation
-}
-
-#[derive(Clone, Debug, Deserialize)]
-pub struct GisResponseAlerts {
-    pub title: String,
-    pub regions: Vec<String>,
-    pub severity: String,
-    pub time: u64,
-    pub expires: u64,
-    pub description: String,
-    pub uri: String
-}
-
-#[derive(Clone, Debug, Deserialize)]
-pub struct GisResponseLocation {
+    pub address: String,
     pub lat: f64,
     pub lon: f64,
-    pub address: String
+    pub bounding_box: Vec<String>,
+    #[serde(rename = "type")]
+    pub gis_type: Vec<String>,
+    pub map: String
 }
