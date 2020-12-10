@@ -15,5 +15,3 @@ branch = "master"
 ```rust
 use ksoft;
 ```
-
-#Todo: solve Deserialize not implementing DeserializeOwned, finish crate and finish the example
