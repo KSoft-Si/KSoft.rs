@@ -2,8 +2,8 @@ use reqwest::{Client as HttpClient, Result as HttpResult};
 use std::sync::Arc;
 use serde::Deserialize;
 use crate::ApiResponse;
-use crate::model::error::*;
-use crate::make_request;
+use crate::model::*;
+use crate::{make_request, endpoint};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
 pub struct Images {
@@ -18,7 +18,7 @@ impl Images {
     }
 
     pub async fn random_image(&self, tag: impl ToString, nsfw: bool) -> HttpResult<ApiResponse<Image, Error404>>{
-        let builder = self.http.clone().get("/images/random-image")
+        let builder = self.http.clone().get(endpoint("/images/random-image").as_str())
             .query(&[("tag", tag.to_string())])
             .query(&[("nsfw", nsfw)]);
 
@@ -27,7 +27,7 @@ impl Images {
     }
 
     pub async fn random_meme(&self) -> HttpResult<RedditImage>{
-        let response = self.http.clone().get("/images/random-meme")
+        let response = self.http.clone().get(endpoint("/images/random-meme").as_str())
             .send()
             .await?;
 
@@ -36,7 +36,7 @@ impl Images {
     }
 
     pub async fn random_aww(&self) -> HttpResult<RedditImage>{
-        return self.http.clone().get("/images/random-aww")
+        return self.http.clone().get(endpoint("/images/random-aww").as_str())
             .send()
             .await?
             .json::<RedditImage>()
@@ -44,7 +44,7 @@ impl Images {
     }
 
     pub async fn random_reddit(&self, subreddit: impl ToString, remove_nsfw: bool, span: SpanType) -> HttpResult<ApiResponse<RedditImage, Error404>>{
-        let builder = self.http.clone().get(format!("/images/rand-reddit/{}", subreddit.to_string()).as_str())
+        let builder = self.http.clone().get(endpoint(format!("/images/rand-reddit/{}", subreddit.to_string())).as_str())
             .query(&[("remove_nsfw", remove_nsfw)])
             .query(&[("span", span.to_string())]);
 
@@ -52,7 +52,7 @@ impl Images {
     }
 
     pub async fn random_wikihow(&self) -> HttpResult<WikiHowImage> {
-        return self.http.clone().get("/images/random-wikihow")
+        return self.http.clone().get(endpoint("/images/random-wikihow").as_str())
             .send()
             .await?
             .json::<WikiHowImage>()
@@ -60,7 +60,7 @@ impl Images {
     }
 
     pub async fn get_tags(&self) -> HttpResult<TagList> {
-        return self.http.clone().get("/images/tags")
+        return self.http.clone().get(endpoint("/images/tags").as_str())
             .send()
             .await?
             .json::<TagList>()
@@ -68,19 +68,19 @@ impl Images {
     }
 
     pub async fn get_image(&self, sf: impl AsRef<str>) -> HttpResult<ApiResponse<Image, Error404>> {
-        let builder = self.http.clone().get(format!("/images/image/{}", sf.as_ref()).as_str());
+        let builder = self.http.clone().get(endpoint(format!("/images/image/{}", sf.as_ref())).as_str());
 
         make_request::<Image, Error404>(builder).await
     }
 
     pub async fn get_tag(&self, tag: impl AsRef<str>) -> HttpResult<ApiResponse<TagList, Error404>> {
-        let builder = self.http.clone().get(format!("/images/tags/{}", tag.as_ref()).as_str());
+        let builder = self.http.clone().get(endpoint(format!("/images/tags/{}", tag.as_ref())).as_str());
 
         make_request::<TagList, Error404>(builder).await
     }
 
     pub async fn random_nsfw(&self, gifs: bool) -> HttpResult<RedditImage> {
-        let response = self.http.clone().get("/images/random-nsfw")
+        let response = self.http.clone().get(endpoint("/images/random-nsfw").as_str())
             .query(&[("gifs", gifs)])
             .send()
             .await?;

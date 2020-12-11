@@ -1,11 +1,12 @@
 use crate::{
     ApiResponse,
     make_request,
-    model::error::*
+    model::*,
 };
 use reqwest::{Client as HttpClient, Result as HttpResult};
 use std::sync::Arc;
 use serde::{Deserialize, Serialize};
+use crate::endpoint;
 
 pub struct Bans {
     pub http: Arc<HttpClient>
@@ -21,7 +22,7 @@ impl Bans {
     async fn _check_bans() {}
 
     pub async fn advanced_paginate(&self, page: u8, per_page: u8) -> HttpResult<ApiResponse<BanList, Error400>>{
-        let builder = self.http.clone().get("/bans/list")
+        let builder = self.http.clone().get(endpoint("/bans/list").as_str())
             .query(&[("per_page", per_page)])
             .query(&[("page", page)]);
 
@@ -41,7 +42,7 @@ impl Bans {
       user_discriminator: Option<u16>,
       appeal_possible: Option<bool>)
     -> HttpResult<ApiResponse<BanAdditionResponse, Error409>>{
-        let builder = self.http.clone().post("/bans/add")
+        let builder = self.http.clone().post(endpoint("/bans/add").as_str())
             .form(&BanAddition {
                 user_id,
                 reason: reason.to_string(),
@@ -56,7 +57,7 @@ impl Bans {
     }
 
     pub async fn check_ban(&self, user_id: u64) -> HttpResult<BanCheckResponse> {
-        let response = self.http.clone().get("/bans/check")
+        let response = self.http.clone().get(endpoint("/bans/check").as_str())
             .query(&[("user", user_id)])
             .send()
             .await?;
@@ -65,14 +66,14 @@ impl Bans {
     }
 
     async fn ban_info(&self, user_id: u64) -> HttpResult<ApiResponse<BanInfoResponse, Error404>> {
-        let builder = self.http.clone().get("/bans/info")
+        let builder = self.http.clone().get(endpoint("/bans/info").as_str())
             .query(&[("user", user_id)]);
 
         make_request::<BanInfoResponse, Error404>(builder).await
     }
 
     async fn delete_forcing(&self, user_id: u64) -> HttpResult<ApiResponse<BanDeletionResponse, Error401>> {
-        let builder = self.http.clone().delete("/bans/delete")
+        let builder = self.http.clone().delete(endpoint("/bans/delete").as_str())
             .query(&[("user", user_id)])
             .query(&[("force", true)]);
 
@@ -80,7 +81,7 @@ impl Bans {
     }
 
     async fn delete(&self, user_id: u64) -> HttpResult<ApiResponse<BanDeletionResponse, Error401>> {
-        let builder = self.http.clone().delete("/bans/delete")
+        let builder = self.http.clone().delete(endpoint("/bans/delete").as_str())
             .query(&[("user", user_id)]);
 
         make_request::<BanDeletionResponse, Error401>(builder).await

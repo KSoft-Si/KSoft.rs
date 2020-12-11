@@ -2,10 +2,9 @@ use reqwest::{Client as HttpClient, Result as HttpResult};
 use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 use crate::ApiResponse;
-use crate::model::error::*;
-use crate::make_request;
+use crate::model::*;
+use crate::{make_request, endpoint};
 use std::fmt::{Display, Formatter, Result as FmtResult};
-use std::collections::hash_map::map_try_reserve_error;
 
 pub struct Music {
     pub http: Arc<HttpClient>
@@ -20,7 +19,7 @@ impl Music {
 
     pub async fn advanced_lyrics(&self, q: impl ToString, text_only: bool,
                                  limit: u32) -> HttpResult<ApiResponse<Lyrics, Error404>> {
-        let builder = self.http.clone().get("/lyrics/search")
+        let builder = self.http.clone().get(endpoint("/lyrics/search").as_str())
             .query(&[("q", q.to_string())])
             .query(&[("text_only", text_only)])
             .query(&[("limit", limit)]);
@@ -29,15 +28,15 @@ impl Music {
     }
 
     pub async fn lyrics(&self, query: impl ToString) -> HttpResult<ApiResponse<Lyrics, Error404>> {
-        self.advanced_lyrics(query.as_ref(), false, 10).await
+        self.advanced_lyrics(query.to_string(), false, 10).await
     }
 
     pub async fn advanced_recommendations(&self, tracks: ProviderType, youtube_token: Option<String>, limit: Option<u32>, recommend_type: Option<String>) -> HttpResult<MusicRecommendationsResponse>{
-        let track_vec = match tracks {
-            ProviderType::Youtube(t) => t,
-            ProviderType::YoutubeIDs(t) => t,
-            ProviderType::YoutubeTitles(t) => t,
-            ProviderType::SpotifyIDs(t) => t
+        let track_vec = match &tracks {
+            ProviderType::Youtube(t) => t.clone(),
+            ProviderType::YoutubeIDs(t) => t.clone(),
+            ProviderType::YoutubeTitles(t) => t.clone(),
+            ProviderType::SpotifyIDs(t) => t.clone()
         };
         let payload = MusicRecommendations {
             tracks: track_vec,
@@ -47,7 +46,7 @@ impl Music {
             recommend_type
         };
 
-        let response = self.http.clone().post("/music/recommendations")
+        let response = self.http.clone().post(endpoint("/music/recommendations").as_str())
             .json(&payload)
             .send()
             .await?;
@@ -55,8 +54,8 @@ impl Music {
         response.json::<MusicRecommendationsResponse>().await
     }
 
-    pub async fn recommendations(&self, tracks: ProviderType) -> HttpResult<MusicRecommendationsResponse>{
-        self.advanced_recommendations(tracks, None, None, None)
+    pub async fn recommendations(&self, tracks: ProviderType) -> HttpResult<MusicRecommendationsResponse> {
+        self.advanced_recommendations(tracks, None, None, None).await
     }
 }
 
@@ -141,6 +140,7 @@ pub struct MusicRecommendations {
     pub recommend_type: Option<String>,
 }
 
+#[derive(Clone)]
 pub enum ProviderType {
     Youtube(Vec<String>),
     YoutubeIDs(Vec<String>),

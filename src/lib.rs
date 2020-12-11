@@ -56,6 +56,12 @@ pub(crate) async fn make_request<S: DeserializeOwned, E: DeserializeOwned>(c: Re
     }
 }
 
+const BASE_ENDPOINT: &str = "https://api.ksoft.si";
+
+pub(crate) fn endpoint(to: impl AsRef<str>) -> String {
+    format!("{}{}", BASE_ENDPOINT, to.as_ref())
+}
+
 pub enum ApiResponse<S, E> {
     Success(S),
     Failed(E)
