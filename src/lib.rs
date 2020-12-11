@@ -2,11 +2,13 @@ pub mod images;
 pub mod model;
 pub mod bans;
 pub mod kumo;
+pub mod music;
 
 use crate::{
     images::Images,
     bans::Bans,
-    kumo::Kumo
+    kumo::Kumo,
+    music::Music
 };
 use reqwest::{Client as HttpClient, RequestBuilder};
 use std::sync::Arc;
@@ -18,6 +20,7 @@ pub struct Client {
     pub images: Images,
     pub bans: Bans,
     pub kumo: Kumo,
+    pub music: Music,
     pub http: Arc<HttpClient>
 }
 
@@ -32,6 +35,7 @@ impl Client {
             images: Images::new(Arc::clone(&http_client)),
             bans: Bans::new(Arc::clone(&http_client)),
             kumo: Kumo::new(Arc::clone(&http_client)),
+            music: Music::new(Arc::clone(&http_client)),
             http: http_client
         }
     }

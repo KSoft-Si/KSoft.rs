@@ -16,4 +16,4 @@ branch = "master"
 use ksoft;
 ```
 
-Todo: Add song endpoints and finish the usage example
+Todo: finish the usage example and make docs on gitbook
