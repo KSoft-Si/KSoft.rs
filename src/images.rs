@@ -51,8 +51,9 @@ impl Images {
         make_request::<RedditImage, Error404>(builder).await
     }
 
-    pub async fn random_wikihow(&self) -> HttpResult<WikiHowImage> {
+    pub async fn random_wikihow(&self, nsfw: bool) -> HttpResult<WikiHowImage> {
         return self.http.clone().get(endpoint("/images/random-wikihow").as_str())
+            .query(&[("nsfw", nsfw)])
             .send()
             .await?
             .json::<WikiHowImage>()
