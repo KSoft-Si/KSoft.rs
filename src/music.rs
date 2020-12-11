@@ -32,7 +32,7 @@ impl Music {
         self.advanced_lyrics(query.as_ref(), false, 10).await
     }
 
-    pub async fn advanced_recommendations(&self, tracks: ProviderType, youtube_token: Option<String>, limit: Option<u32>, recommend_type: Option<String>) {
+    pub async fn advanced_recommendations(&self, tracks: ProviderType, youtube_token: Option<String>, limit: Option<u32>, recommend_type: Option<String>) -> HttpResult<MusicRecommendationsResponse>{
         let track_vec = match tracks {
             ProviderType::Youtube(t) => t,
             ProviderType::YoutubeIDs(t) => t,
@@ -47,12 +47,16 @@ impl Music {
             recommend_type
         };
 
-        let builder = self.http.clone().post("/music/recommendations")
-            .json(&payload);
+        let response = self.http.clone().post("/music/recommendations")
+            .json(&payload)
+            .send()
+            .await?;
+
+        response.json::<MusicRecommendationsResponse>().await
     }
 
-    pub async fn recommendations(&self, tracks: ProviderType) {
-        self.advanced_recommendations(tracks, None, 5, None)
+    pub async fn recommendations(&self, tracks: ProviderType) -> HttpResult<MusicRecommendationsResponse>{
+        self.advanced_recommendations(tracks, None, None, None)
     }
 }
 
