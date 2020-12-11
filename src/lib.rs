@@ -62,6 +62,7 @@ pub(crate) fn endpoint(to: impl AsRef<str>) -> String {
     format!("{}{}", BASE_ENDPOINT, to.as_ref())
 }
 
+#[derive(Debug)]
 pub enum ApiResponse<S, E> {
     Success(S),
     Failed(E)
