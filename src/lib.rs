@@ -27,7 +27,7 @@ pub struct Client {
 impl Client {
     fn new<T: ToString>(token: T) -> Self {
         let mut default_auth_header =  HeaderMap::new();
-        default_auth_header.insert("Authorization", token.to_string().parse().expect("Cannot parse default headers"));
+        default_auth_header.insert("Authorization", format!("Bearer {}", token.to_string()).parse().expect("Cannot parse default headers"));
         let http_client = Arc::new(HttpClient::builder().default_headers(default_auth_header).build().expect("Something went wrong when creating http client"));
 
         Self {
