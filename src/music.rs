@@ -1,9 +1,11 @@
 use reqwest::{Client as HttpClient, Result as HttpResult};
 use std::sync::Arc;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use crate::ApiResponse;
 use crate::model::error::*;
 use crate::make_request;
+use std::fmt::{Display, Formatter, Result as FmtResult};
+use std::collections::hash_map::map_try_reserve_error;
 
 pub struct Music {
     pub http: Arc<HttpClient>
@@ -28,6 +30,29 @@ impl Music {
 
     pub async fn lyrics(&self, query: impl ToString) -> HttpResult<ApiResponse<Lyrics, Error404>> {
         self.advanced_lyrics(query.as_ref(), false, 10).await
+    }
+
+    pub async fn advanced_recommendations(&self, tracks: ProviderType, youtube_token: Option<String>, limit: Option<u32>, recommend_type: Option<String>) {
+        let track_vec = match tracks {
+            ProviderType::Youtube(t) => t,
+            ProviderType::YoutubeIDs(t) => t,
+            ProviderType::YoutubeTitles(t) => t,
+            ProviderType::SpotifyIDs(t) => t
+        };
+        let payload = MusicRecommendations {
+            tracks: track_vec,
+            provider: tracks.to_string(),
+            youtube_token,
+            limit,
+            recommend_type
+        };
+
+        let builder = self.http.clone().post("/music/recommendations")
+            .json(&payload);
+    }
+
+    pub async fn recommendations(&self, tracks: ProviderType) {
+        self.advanced_recommendations(tracks, None, 5, None)
     }
 }
 
@@ -98,4 +123,79 @@ pub struct ArtistsMeta {
 pub struct OtherMeta {
     pub gain: i64,
     pub bpm: f64
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct MusicRecommendations {
+    pub tracks: Vec<String>,
+    pub provider: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub youtube_token: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub limit: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub recommend_type: Option<String>,
+}
+
+pub enum ProviderType {
+    Youtube(Vec<String>),
+    YoutubeIDs(Vec<String>),
+    YoutubeTitles(Vec<String>),
+    SpotifyIDs(Vec<String>)
+}
+
+impl Display for ProviderType {
+    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        match self {
+            ProviderType::Youtube(_) => write!(f, "youtube"),
+            ProviderType::YoutubeIDs(_) => write!(f, "youtube_ids"),
+            ProviderType::YoutubeTitles(_) => write!(f, "youtube_titles"),
+            ProviderType::SpotifyIDs(_) => write!(f, "spotify"),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct MusicRecommendationsResponse {
+    pub provider: String,
+    pub total: u32,
+    pub tracks: Vec<RecommendationTrack>
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct RecommendationTrack {
+    pub youtube: YoutubeTrack,
+    pub spotify: SpotifyTrack,
+    pub name: String
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct SpotifyTrack {
+    pub id: String,
+    pub album: SpotifyAlbum,
+    pub artists: Vec<SpotifyArtist>,
+    pub name: String,
+    pub link: String
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct SpotifyArtist {
+    pub name: String,
+    pub link: String
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct SpotifyAlbum {
+    pub name: String,
+    pub album_art: String,
+    pub link: String
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct YoutubeTrack {
+    pub id: String,
+    pub link: String,
+    pub title: String,
+    pub thumbnail: String,
+    pub description: String,
 }
