@@ -74,3 +74,30 @@ pub enum ApiResponse<S, E> {
     Success(S),
     Failed(E)
 }
+
+impl <S, E> ApiResponse<S, E> {
+    pub fn is_success(&self) -> bool {
+        match self {
+            ApiResponse::Success(_) => true,
+            ApiResponse::Failed(_) => false
+        }
+    }
+
+    pub fn is_failed(&self) -> bool {
+        !self.is_success()
+    }
+
+    pub fn unwrap(self) -> S {
+        match self {
+            ApiResponse::Success(v) => v,
+            ApiResponse::Failed(_) => panic!("Called unwrap on a failed value"),
+        }
+    }
+
+    pub fn expect(self, msg: &str) -> S {
+        match self {
+            ApiResponse::Success(v) => v,
+            ApiResponse::Failed(e) => panic!("{}: {:?}", msg, e),
+        }
+    }
+}

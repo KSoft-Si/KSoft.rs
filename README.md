@@ -32,6 +32,7 @@ async fn main() {
 ```
 
 Also there is an extra error management tool, it is ApiResponse, its behaviour is almost the same as Result
+Is only there to difference between an http error and an API error or unsuccessful response
 
 ```rust
 pub enum ApiResponse<S, E> {
