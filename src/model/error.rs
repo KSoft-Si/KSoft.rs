@@ -67,7 +67,7 @@ pub struct ImageError {
 pub struct KumoError {
     pub code: u16,
     pub error: bool,
-    pub message: String
+    pub message: Option<String>
 }
 
 #[derive(Clone, Debug, Deserialize)]
