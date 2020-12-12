@@ -60,5 +60,4 @@ async fn main() {
     }
 }
 ```
-
-Todo: finish the usage example and make docs on gitbook
+make docs on gitbook
