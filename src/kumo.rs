@@ -46,5 +46,5 @@ pub struct GisResponseData {
     pub bounding_box: Vec<String>,
     #[serde(rename = "type")]
     pub gis_type: Vec<String>,
-    pub map: String
+    pub map: Option<String>
 }

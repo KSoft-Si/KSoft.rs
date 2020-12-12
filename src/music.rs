@@ -60,7 +60,7 @@ impl Music {
 #[derive(Clone, Debug, Deserialize)]
 pub struct Lyrics {
     pub total: u64,
-    pub tool: u64,
+    pub took: u64,
     pub data: Vec<LyricsData>
 }
 
@@ -95,22 +95,22 @@ pub struct LyricsSingalong {
 pub struct LyricsMeta {
     pub spotify: SpotifyMeta,
     pub deezer: DeezerMeta,
-    pub artists: ArtistsMeta,
+    pub artists: Vec<ArtistsMeta>,
     pub other: OtherMeta
 }
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct SpotifyMeta {
     pub artists: Vec<String>,
-    pub track: String,
-    pub album: String
+    pub track: Option<String>,
+    pub album: Option<String>
 }
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct DeezerMeta {
     pub artists: Vec<String>,
-    pub track: String,
-    pub album: String
+    pub track: Option<String>,
+    pub album: Option<String>
 }
 
 #[derive(Clone, Debug, Deserialize)]
