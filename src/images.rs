@@ -18,13 +18,15 @@ impl Images {
         }
     }
 
-    pub async fn random_image(&self, tag: impl ToString, nsfw: bool) -> HttpResult<Image, Error404>{
+    pub async fn random_image(&self, tag: impl ToString, nsfw: bool) -> HttpResult<Image, ImageError>{
+        if tag.to_string().is_empty() { panic!("Tag param cannot be empty") }
+
         let builder = self.http.clone().get(endpoint("/images/random-image").as_str())
             .query(&[("tag", tag.to_string())])
             .query(&[("nsfw", nsfw)]);
 
 
-        make_request::<Image, Error404>(builder).await
+        make_request::<Image, ImageError>(builder).await
     }
 
     pub async fn random_meme(&self) -> reqwest::Result<RedditImage>{
@@ -44,12 +46,14 @@ impl Images {
             .await
     }
 
-    pub async fn random_reddit(&self, subreddit: impl ToString, remove_nsfw: bool, span: SpanType) -> HttpResult<RedditImage, Error404>{
+    pub async fn random_reddit(&self, subreddit: impl ToString, remove_nsfw: bool, span: SpanType) -> HttpResult<RedditImage, ImageError>{
+        if subreddit.to_string().is_empty() { panic!("You have to specify a subreddit to search in") }
+
         let builder = self.http.clone().get(endpoint(format!("/images/rand-reddit/{}", subreddit.to_string())).as_str())
             .query(&[("remove_nsfw", remove_nsfw)])
             .query(&[("span", span.to_string())]);
 
-        make_request::<RedditImage, Error404>(builder).await
+        make_request::<RedditImage, ImageError>(builder).await
     }
 
     pub async fn random_wikihow(&self, nsfw: bool) -> reqwest::Result<WikiHowImage> {
@@ -69,13 +73,17 @@ impl Images {
             .await
     }
 
-    pub async fn get_image(&self, sf: impl AsRef<str>) -> HttpResult<Image, Error404> {
+    pub async fn get_image(&self, sf: impl AsRef<str>) -> HttpResult<Image, ImageError> {
+        if sf.as_ref().is_empty() { panic!("Snowflake cannot be empty") }
+
         let builder = self.http.clone().get(endpoint(format!("/images/image/{}", sf.as_ref())).as_str());
 
-        make_request::<Image, Error404>(builder).await
+        make_request::<Image, ImageError>(builder).await
     }
 
     pub async fn get_tag(&self, tag: impl AsRef<str>) -> reqwest::Result<TagList> {
+        if tag.as_ref().is_empty() { panic!("Tag cannot be empty") }
+
         let response = self.http.clone().get(endpoint(format!("/images/tags/{}", tag.as_ref())).as_str())
             .send()
             .await?;

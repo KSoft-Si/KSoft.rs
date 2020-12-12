@@ -18,27 +18,32 @@ impl Music {
         }
     }
 
-    pub async fn advanced_lyrics(&self, q: impl ToString, text_only: bool,
-                                 limit: u32) -> HttpResult<Lyrics, Error404> {
+    pub async fn advanced_lyrics(&self, query: impl ToString, text_only: bool,
+                                 limit: u32) -> HttpResult<Lyrics, MusicError> {
+        if query.to_string().is_empty() { panic!("Query param cannot be empty") }
+
         let builder = self.http.clone().get(endpoint("/lyrics/search").as_str())
-            .query(&[("q", q.to_string())])
+            .query(&[("q", query.to_string())])
             .query(&[("text_only", text_only)])
             .query(&[("limit", limit)]);
 
-        make_request::<Lyrics, Error404>(builder).await
+        make_request::<Lyrics, MusicError>(builder).await
     }
 
-    pub async fn lyrics(&self, query: impl ToString) -> HttpResult<Lyrics, Error404> {
+    pub async fn lyrics(&self, query: impl ToString) -> HttpResult<Lyrics, MusicError> {
         self.advanced_lyrics(query.to_string(), false, 10).await
     }
 
-    pub async fn advanced_recommendations(&self, tracks: ProviderType, youtube_token: Option<String>, limit: Option<u32>, recommend_type: Option<String>) -> HttpResult<MusicRecommendationsResponse, Error400>{
+    pub async fn advanced_recommendations(&self, tracks: ProviderType, youtube_token: Option<String>, limit: Option<u32>, recommend_type: Option<String>) -> HttpResult<MusicRecommendationsResponse, MusicError>{
         let track_vec = match &tracks {
             ProviderType::Youtube(t) => t.clone(),
             ProviderType::YoutubeIDs(t) => t.clone(),
             ProviderType::YoutubeTitles(t) => t.clone(),
             ProviderType::SpotifyIDs(t) => t.clone()
         };
+
+        if track_vec.len() < 1 { panic!("Vector contents cannot be empty") }
+
         let payload = MusicRecommendations {
             tracks: track_vec,
             provider: tracks.to_string(),
@@ -50,10 +55,10 @@ impl Music {
         let builder = self.http.clone().post(endpoint("/music/recommendations").as_str())
             .json(&payload);
 
-        make_request::<MusicRecommendationsResponse, Error400>(builder).await
+        make_request::<MusicRecommendationsResponse, MusicError>(builder).await
     }
 
-    pub async fn recommendations(&self, tracks: ProviderType) -> HttpResult<MusicRecommendationsResponse, Error400> {
+    pub async fn recommendations(&self, tracks: ProviderType) -> HttpResult<MusicRecommendationsResponse, MusicError> {
         self.advanced_recommendations(tracks, None, None, None).await
     }
 }

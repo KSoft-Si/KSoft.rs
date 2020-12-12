@@ -22,13 +22,14 @@ impl Kumo {
     fast: bool,
     more: bool,
     map_zoom: u8,
-    include_map: bool) -> HttpResult<GisResponse, Error404>{
+    include_map: bool) -> HttpResult<GisResponse, KumoError>{
+        if location.as_ref().is_empty() { panic!("Location param cannot be empty") }
         let builder = self.http.clone().get(endpoint("/kumo/gis").as_str())
             .query(&[("q", location.as_ref())])
             .query(&[("map_zoom", map_zoom)])
             .query(&[("fast", fast), ("more", more), ("include_map", include_map)]);
 
-        make_request::<GisResponse, Error404>(builder).await
+        make_request::<GisResponse, KumoError>(builder).await
     }
 }
 
