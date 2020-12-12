@@ -9,7 +9,7 @@ pub struct Error404 {
     pub cache: Option<bool>,
     pub total: Option<i32>,
     pub took: Option<i32>,
-    pub data: Option<Vec<crate::music::Lyrics>>, //todo: create song struct and replace string with it
+    pub data: Option<Vec<crate::music::Lyrics>>,
     pub voted: Option<bool>
 }
 
@@ -23,8 +23,15 @@ pub struct RawError {
     pub cache: Option<bool>,
     pub total: Option<i32>,
     pub took: Option<i32>,
-    pub data: Option<Vec<crate::music::Lyrics>>, //todo: create song struct and replace string with it
+    pub data: Option<Vec<crate::music::Lyrics>>,
     pub voted: Option<bool>
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct Error402 {
+    pub code: u16,
+    pub error: bool,
+    pub message: String
 }
 
 #[derive(Clone, Debug, Deserialize)]

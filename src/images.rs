@@ -17,13 +17,13 @@ impl Images {
         }
     }
 
-    pub async fn random_image(&self, tag: impl ToString, nsfw: bool) -> HttpResult<ApiResponse<Image, Error404>>{
+    pub async fn random_image(&self, tag: impl ToString, nsfw: bool) -> HttpResult<ApiResponse<Image>>{
         let builder = self.http.clone().get(endpoint("/images/random-image").as_str())
             .query(&[("tag", tag.to_string())])
             .query(&[("nsfw", nsfw)]);
 
 
-        make_request::<Image, Error404>(builder).await
+        make_request::<Image>(builder).await
     }
 
     pub async fn random_meme(&self) -> HttpResult<RedditImage>{
@@ -43,12 +43,12 @@ impl Images {
             .await
     }
 
-    pub async fn random_reddit(&self, subreddit: impl ToString, remove_nsfw: bool, span: SpanType) -> HttpResult<ApiResponse<RedditImage, Error404>>{
+    pub async fn random_reddit(&self, subreddit: impl ToString, remove_nsfw: bool, span: SpanType) -> HttpResult<ApiResponse<RedditImage>>{
         let builder = self.http.clone().get(endpoint(format!("/images/rand-reddit/{}", subreddit.to_string())).as_str())
             .query(&[("remove_nsfw", remove_nsfw)])
             .query(&[("span", span.to_string())]);
 
-        make_request::<RedditImage, Error404>(builder).await
+        make_request::<RedditImage>(builder).await
     }
 
     pub async fn random_wikihow(&self, nsfw: bool) -> HttpResult<WikiHowImage> {
@@ -68,16 +68,16 @@ impl Images {
             .await
     }
 
-    pub async fn get_image(&self, sf: impl AsRef<str>) -> HttpResult<ApiResponse<Image, Error404>> {
+    pub async fn get_image(&self, sf: impl AsRef<str>) -> HttpResult<ApiResponse<Image>> {
         let builder = self.http.clone().get(endpoint(format!("/images/image/{}", sf.as_ref())).as_str());
 
-        make_request::<Image, Error404>(builder).await
+        make_request::<Image>(builder).await
     }
 
-    pub async fn get_tag(&self, tag: impl AsRef<str>) -> HttpResult<ApiResponse<TagList, Error404>> {
+    pub async fn get_tag(&self, tag: impl AsRef<str>) -> HttpResult<ApiResponse<TagList>> {
         let builder = self.http.clone().get(endpoint(format!("/images/tags/{}", tag.as_ref())).as_str());
 
-        make_request::<TagList, Error404>(builder).await
+        make_request::<TagList>(builder).await
     }
 
     pub async fn random_nsfw(&self, gifs: bool) -> HttpResult<RedditImage> {

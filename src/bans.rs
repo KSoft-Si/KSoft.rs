@@ -21,15 +21,15 @@ impl Bans {
 
     async fn _check_bans() {}
 
-    pub async fn advanced_paginate(&self, page: u8, per_page: u8) -> HttpResult<ApiResponse<BanList, Error400>>{
+    pub async fn advanced_paginate(&self, page: u8, per_page: u8) -> HttpResult<ApiResponse<BanList>>{
         let builder = self.http.clone().get(endpoint("/bans/list").as_str())
             .query(&[("per_page", per_page)])
             .query(&[("page", page)]);
 
-        make_request::<BanList, Error400>(builder).await
+        make_request::<BanList>(builder).await
     }
 
-    pub async fn paginate(&self) -> HttpResult<ApiResponse<BanList, Error400>> {
+    pub async fn paginate(&self) -> HttpResult<ApiResponse<BanList>> {
         self.advanced_paginate(1, 20).await
     }
 
@@ -41,7 +41,7 @@ impl Bans {
       user_name: Option<String>,
       user_discriminator: Option<u16>,
       appeal_possible: Option<bool>)
-    -> HttpResult<ApiResponse<BanAdditionResponse, Error409>>{
+    -> HttpResult<ApiResponse<BanAdditionResponse>>{
         let builder = self.http.clone().post(endpoint("/bans/add").as_str())
             .form(&BanAddition {
                 user_id,
@@ -53,7 +53,7 @@ impl Bans {
                 appeal_possible
             });
 
-        make_request::<BanAdditionResponse, Error409>(builder).await
+        make_request::<BanAdditionResponse>(builder).await
     }
 
     pub async fn check_ban(&self, user_id: u64) -> HttpResult<BanCheckResponse> {
@@ -65,26 +65,26 @@ impl Bans {
         response.json::<BanCheckResponse>().await
     }
 
-    pub async fn ban_info(&self, user_id: u64) -> HttpResult<ApiResponse<BanInfoResponse, Error404>> {
+    pub async fn ban_info(&self, user_id: u64) -> HttpResult<ApiResponse<BanInfoResponse>> {
         let builder = self.http.clone().get(endpoint("/bans/info").as_str())
             .query(&[("user", user_id)]);
 
-        make_request::<BanInfoResponse, Error404>(builder).await
+        make_request::<BanInfoResponse>(builder).await
     }
 
-    pub async fn delete_forcing(&self, user_id: u64) -> HttpResult<ApiResponse<BanDeletionResponse, Error401>> {
+    pub async fn delete_forcing(&self, user_id: u64) -> HttpResult<ApiResponse<BanDeletionResponse>> {
         let builder = self.http.clone().delete(endpoint("/bans/delete").as_str())
             .query(&[("user", user_id)])
             .query(&[("force", true)]);
 
-        make_request::<BanDeletionResponse, Error401>(builder).await
+        make_request::<BanDeletionResponse>(builder).await
     }
 
-    pub async fn delete(&self, user_id: u64) -> HttpResult<ApiResponse<BanDeletionResponse, Error401>> {
+    pub async fn delete(&self, user_id: u64) -> HttpResult<ApiResponse<BanDeletionResponse>> {
         let builder = self.http.clone().delete(endpoint("/bans/delete").as_str())
             .query(&[("user", user_id)]);
 
-        make_request::<BanDeletionResponse, Error401>(builder).await
+        make_request::<BanDeletionResponse>(builder).await
     }
 }
 

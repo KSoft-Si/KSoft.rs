@@ -8,7 +8,8 @@ use crate::{
     images::Images,
     bans::Bans,
     kumo::Kumo,
-    music::Music
+    music::Music,
+    model::*
 };
 use reqwest::{Client as HttpClient, RequestBuilder};
 use std::sync::Arc;
@@ -41,7 +42,7 @@ impl Client {
     }
 }
 
-pub(crate) async fn make_request<S: DeserializeOwned, E: DeserializeOwned>(c: RequestBuilder) -> reqwest::Result<ApiResponse<S, E>> {
+pub(crate) async fn make_request<S: DeserializeOwned>(c: RequestBuilder) -> reqwest::Result<ApiResponse<S>> {
     let response = c.send().await?;
 
     return match response.status().as_u16() {
@@ -50,7 +51,7 @@ pub(crate) async fn make_request<S: DeserializeOwned, E: DeserializeOwned>(c: Re
             Ok(ApiResponse::Success(data))
         },
         _ => {
-            let err = response.json::<E>().await?;
+            let err = response.json::<RawError>().await?;
             Ok(ApiResponse::Failed(err))
         }
     }
@@ -63,7 +64,7 @@ pub(crate) fn endpoint(to: impl AsRef<str>) -> String {
 }
 
 #[derive(Debug)]
-pub enum ApiResponse<S, E> {
+pub enum ApiResponse<S> {
     Success(S),
-    Failed(E)
+    Failed(RawError)
 }
