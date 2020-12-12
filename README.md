@@ -23,7 +23,7 @@ use ksoft::Client;
 async fn main() {
     let client = Client::new("TOKEN HERE"); //crate the client
     
-    if let Ok(meme) = client.images.random_meme() { //try to get a random meme handling the possible error
+    if let Ok(meme) = client.images.random_meme().await { //try to get a random meme handling the possible error
         //Do some logical stuff here...
     } else {
         //Error handling stuff
@@ -49,7 +49,7 @@ use ksoft::{Client, ApiResponse};
 async fn main() {
     let client = Client::new("TOKEN HERE"); //crate the client
     
-    if let Ok(image) = client.images.get_image() { //image var will be ApiResponse<Image>
+    if let Ok(image) = client.images.get_image("image id here").await { //image var will be ApiResponse<Image>
         match image {
             ApiResponse::Success(image) => {
                 //Do something with the image
