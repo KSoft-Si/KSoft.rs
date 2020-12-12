@@ -65,14 +65,14 @@ impl Bans {
         response.json::<BanCheckResponse>().await
     }
 
-    async fn ban_info(&self, user_id: u64) -> HttpResult<ApiResponse<BanInfoResponse, Error404>> {
+    pub async fn ban_info(&self, user_id: u64) -> HttpResult<ApiResponse<BanInfoResponse, Error404>> {
         let builder = self.http.clone().get(endpoint("/bans/info").as_str())
             .query(&[("user", user_id)]);
 
         make_request::<BanInfoResponse, Error404>(builder).await
     }
 
-    async fn delete_forcing(&self, user_id: u64) -> HttpResult<ApiResponse<BanDeletionResponse, Error401>> {
+    pub async fn delete_forcing(&self, user_id: u64) -> HttpResult<ApiResponse<BanDeletionResponse, Error401>> {
         let builder = self.http.clone().delete(endpoint("/bans/delete").as_str())
             .query(&[("user", user_id)])
             .query(&[("force", true)]);
@@ -80,7 +80,7 @@ impl Bans {
         make_request::<BanDeletionResponse, Error401>(builder).await
     }
 
-    async fn delete(&self, user_id: u64) -> HttpResult<ApiResponse<BanDeletionResponse, Error401>> {
+    pub async fn delete(&self, user_id: u64) -> HttpResult<ApiResponse<BanDeletionResponse, Error401>> {
         let builder = self.http.clone().delete(endpoint("/bans/delete").as_str())
             .query(&[("user", user_id)]);
 
