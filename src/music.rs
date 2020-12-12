@@ -27,7 +27,7 @@ impl Music {
         make_request::<Lyrics, RawError>(builder).await
     }
 
-    pub async fn lyrics(&self, query: impl ToString) -> HttpResult<ApiResponse<Lyrics, Error404>> {
+    pub async fn lyrics(&self, query: impl ToString) -> HttpResult<ApiResponse<Lyrics, RawError>> {
         self.advanced_lyrics(query.to_string(), false, 10).await
     }
 
