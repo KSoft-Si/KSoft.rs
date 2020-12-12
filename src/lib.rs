@@ -75,6 +75,7 @@ pub(crate) fn endpoint(to: impl AsRef<str>) -> String {
 pub type HttpResult<S, E> = Result<ApiResponse<S, E>, HttpResponse>;
 pub type ApiResponse<S, E> = Result<S, E>;
 
+#[derive(Debug)]
 pub enum HttpResponse {
     RequestFailed(reqwest::Error),
     InternalServerError(String)
