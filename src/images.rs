@@ -129,7 +129,7 @@ pub struct RedditImage {
     pub upvotes: u64,
     pub downvotes: u64,
     pub comments: u64,
-    pub created_at: u64,
+    pub created_at: i64,
     pub nsfw: bool,
     pub author: String,
     pub awards: u64
