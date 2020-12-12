@@ -46,12 +46,12 @@ use ksoft::{Client, ApiResponse};
 async fn main() {
     let client = Client::new("TOKEN HERE"); //crate the client
     
-    if let Ok(image) = client.images.get_image("image id here").await { //image var will be ApiResponse<Image, Error404>
+    if let Ok(image) = client.images.get_image("image id here").await { //image var will be ApiResponse<Image, ImageError>
         match image {
             Ok(image) => {
                 //Do something with the image
             },
-            Ok(why) => { //In this case, why will be an Error404 struct
+            Ok(why) => { //In this case, why will be an ImageError struct
                 //Do some handling stuff
             }
         }
