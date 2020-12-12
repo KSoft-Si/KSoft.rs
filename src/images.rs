@@ -74,7 +74,7 @@ impl Images {
     }
 
     pub async fn get_image(&self, sf: impl AsRef<str>) -> HttpResult<Image, ImageError> {
-        if sf.as_ref().is_empty() { panic!("Snowflake cannot be empty") }
+        if sf.as_ref().is_empty() { panic!("Snowflake id cannot be empty") }
 
         let builder = self.http.clone().get(endpoint(format!("/images/image/{}", sf.as_ref())).as_str());
 

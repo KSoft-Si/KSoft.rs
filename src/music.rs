@@ -31,7 +31,7 @@ impl Music {
     }
 
     pub async fn lyrics(&self, query: impl ToString) -> HttpResult<Lyrics, MusicError> {
-        self.advanced_lyrics(query.to_string(), false, 10).await
+        self.advanced_lyrics(query, false, 10).await
     }
 
     pub async fn advanced_recommendations(&self, tracks: ProviderType, youtube_token: Option<String>, limit: Option<u32>, recommend_type: Option<String>) -> HttpResult<MusicRecommendationsResponse, MusicError>{
