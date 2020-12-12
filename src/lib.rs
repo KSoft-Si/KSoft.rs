@@ -10,10 +10,12 @@ use crate::{
     kumo::Kumo,
     music::Music,
 };
-use reqwest::{Client as HttpClient, RequestBuilder};
+use reqwest::{Client as HttpClient, RequestBuilder, Error};
 use std::sync::Arc;
 use reqwest::header::HeaderMap;
 use serde::de::DeserializeOwned;
+use serde::export::TryFrom;
+use crate::HttpResponse::RequestFailed;
 
 pub struct Client {
     pub token: String,
@@ -41,14 +43,14 @@ impl Client {
     }
 }
 
-pub(crate) async fn make_request<S: DeserializeOwned, E: DeserializeOwned>(c: RequestBuilder) -> reqwest::Result<ApiResponse<S, E>> {
+pub(crate) async fn make_request<S: DeserializeOwned, E: DeserializeOwned>(c: RequestBuilder) -> HttpResult<S, E> {
     let response = c.send().await?.text().await?;
 
     return if let Ok(d) = serde_json::from_str::<S>(&response) {
-        Ok(ApiResponse::Success(d))
+        Ok(Ok(d))
     } else {
         let err = serde_json::from_str::<E>(&response).unwrap();
-        Ok(ApiResponse::Failed(err))
+        Ok(Err(err))
     }
 
     /*return match response.status().as_u16() {
@@ -69,35 +71,17 @@ pub(crate) fn endpoint(to: impl AsRef<str>) -> String {
     format!("{}{}", BASE_ENDPOINT, to.as_ref())
 }
 
-#[derive(Debug)]
-pub enum ApiResponse<S, E> {
-    Success(S),
-    Failed(E)
+
+pub type HttpResult<S, E> = Result<ApiResponse<S, E>, HttpResponse>;
+pub type ApiResponse<S, E> = Result<S, E>;
+
+pub enum HttpResponse {
+    RequestFailed(reqwest::Error),
+    InternalServerError(String)
 }
 
-impl <S, E> ApiResponse<S, E> {
-    pub fn is_success(&self) -> bool {
-        match self {
-            ApiResponse::Success(_) => true,
-            ApiResponse::Failed(_) => false
-        }
-    }
-
-    pub fn is_failed(&self) -> bool {
-        !self.is_success()
-    }
-
-    pub fn unwrap(self) -> S {
-        match self {
-            ApiResponse::Success(v) => v,
-            ApiResponse::Failed(_) => panic!("Called unwrap on a failed value"),
-        }
-    }
-
-    pub fn expect(self, msg: &str) -> S {
-        match self {
-            ApiResponse::Success(v) => v,
-            ApiResponse::Failed(e) => panic!("{}: {:?}", msg, e),
-        }
+impl From<reqwest::Error> for HttpResponse {
+    fn from(e: Error) -> Self {
+        HttpResponse::RequestFailed(e)
     }
 }

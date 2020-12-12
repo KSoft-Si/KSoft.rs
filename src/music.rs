@@ -1,4 +1,5 @@
-use reqwest::{Client as HttpClient, Result as HttpResult};
+use reqwest::{Client as HttpClient};
+use crate::HttpResult;
 use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 use crate::ApiResponse;
@@ -18,7 +19,7 @@ impl Music {
     }
 
     pub async fn advanced_lyrics(&self, q: impl ToString, text_only: bool,
-                                 limit: u32) -> HttpResult<ApiResponse<Lyrics, Error404>> {
+                                 limit: u32) -> HttpResult<Lyrics, Error404> {
         let builder = self.http.clone().get(endpoint("/lyrics/search").as_str())
             .query(&[("q", q.to_string())])
             .query(&[("text_only", text_only)])
@@ -27,11 +28,11 @@ impl Music {
         make_request::<Lyrics, Error404>(builder).await
     }
 
-    pub async fn lyrics(&self, query: impl ToString) -> HttpResult<ApiResponse<Lyrics, Error404>> {
+    pub async fn lyrics(&self, query: impl ToString) -> HttpResult<Lyrics, Error404> {
         self.advanced_lyrics(query.to_string(), false, 10).await
     }
 
-    pub async fn advanced_recommendations(&self, tracks: ProviderType, youtube_token: Option<String>, limit: Option<u32>, recommend_type: Option<String>) -> HttpResult<ApiResponse<MusicRecommendationsResponse, Error400>>{
+    pub async fn advanced_recommendations(&self, tracks: ProviderType, youtube_token: Option<String>, limit: Option<u32>, recommend_type: Option<String>) -> HttpResult<MusicRecommendationsResponse, Error400>{
         let track_vec = match &tracks {
             ProviderType::Youtube(t) => t.clone(),
             ProviderType::YoutubeIDs(t) => t.clone(),
@@ -52,7 +53,7 @@ impl Music {
         make_request::<MusicRecommendationsResponse, Error400>(builder).await
     }
 
-    pub async fn recommendations(&self, tracks: ProviderType) -> HttpResult<ApiResponse<MusicRecommendationsResponse, Error400>> {
+    pub async fn recommendations(&self, tracks: ProviderType) -> HttpResult<MusicRecommendationsResponse, Error400> {
         self.advanced_recommendations(tracks, None, None, None).await
     }
 }

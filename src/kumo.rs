@@ -1,7 +1,8 @@
-use reqwest::{Client as HttpClient, Result as HttpResult};
+use reqwest::{Client as HttpClient};
 use std::sync::Arc;
 use serde::Deserialize;
 use crate::ApiResponse;
+use crate::HttpResult;
 use crate::model::*;
 use crate::{make_request, endpoint};
 
@@ -21,7 +22,7 @@ impl Kumo {
     fast: bool,
     more: bool,
     map_zoom: u8,
-    include_map: bool) -> HttpResult<ApiResponse<GisResponse, Error404>>{
+    include_map: bool) -> HttpResult<GisResponse, Error404>{
         let builder = self.http.clone().get(endpoint("/kumo/gis").as_str())
             .query(&[("q", location.as_ref())])
             .query(&[("map_zoom", map_zoom)])

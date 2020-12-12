@@ -31,14 +31,11 @@ async fn main() {
 }
 ```
 
-Also there is an extra error management tool, it is ApiResponse, its behaviour is almost the same as Result,
-is only there to difference between an http error and an API error or unsuccessful response
+Also there is an extra error management tool, it is ApiResponse, its behaviour is the same as Result,
+as it is a renaming of it used to difference between an http error and an API error or unsuccessful response
 
 ```rust
-pub enum ApiResponse<S, E> {
-    Success(S),
-    Failed(E)
-}
+pub type ApiResponse<S, E> = Result<S, E>;
 ```
 
 #### ApiResponse example
@@ -51,10 +48,10 @@ async fn main() {
     
     if let Ok(image) = client.images.get_image("image id here").await { //image var will be ApiResponse<Image, Error404>
         match image {
-            ApiResponse::Success(image) => {
+            Ok(image) => {
                 //Do something with the image
             },
-            ApiResponse::Failed(why) => {
+            Ok(why) => { //In this case, why will be an Error404 struct
                 //Do some handling stuff
             }
         }
