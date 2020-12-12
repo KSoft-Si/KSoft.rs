@@ -1,6 +1,19 @@
 use serde::Deserialize;
 
 #[derive(Clone, Debug, Deserialize)]
+pub struct Error404 {
+    pub code: Option<u16>,
+    pub error: Option<bool>,
+    pub exists: Option<bool>,
+    pub message: Option<String>,
+    pub cache: Option<bool>,
+    pub total: Option<i32>,
+    pub took: Option<i32>,
+    pub data: Option<Vec<crate::music::Lyrics>>, //todo: create song struct and replace string with it
+    pub voted: Option<bool>
+}
+
+#[derive(Clone, Debug, Deserialize)]
 pub struct RawError {
     pub code: Option<u16>,
     pub error: Option<bool>,
