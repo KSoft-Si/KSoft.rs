@@ -18,20 +18,20 @@ impl Music {
     }
 
     pub async fn advanced_lyrics(&self, q: impl ToString, text_only: bool,
-                                 limit: u32) -> HttpResult<ApiResponse<Lyrics>> {
+                                 limit: u32) -> HttpResult<ApiResponse<Lyrics, Error404>> {
         let builder = self.http.clone().get(endpoint("/lyrics/search").as_str())
             .query(&[("q", q.to_string())])
             .query(&[("text_only", text_only)])
             .query(&[("limit", limit)]);
 
-        make_request::<Lyrics>(builder).await
+        make_request::<Lyrics, Error404>(builder).await
     }
 
-    pub async fn lyrics(&self, query: impl ToString) -> HttpResult<ApiResponse<Lyrics>> {
+    pub async fn lyrics(&self, query: impl ToString) -> HttpResult<ApiResponse<Lyrics, Error404>> {
         self.advanced_lyrics(query.to_string(), false, 10).await
     }
 
-    pub async fn advanced_recommendations(&self, tracks: ProviderType, youtube_token: Option<String>, limit: Option<u32>, recommend_type: Option<String>) -> HttpResult<ApiResponse<MusicRecommendationsResponse>>{
+    pub async fn advanced_recommendations(&self, tracks: ProviderType, youtube_token: Option<String>, limit: Option<u32>, recommend_type: Option<String>) -> HttpResult<ApiResponse<MusicRecommendationsResponse, Error400>>{
         let track_vec = match &tracks {
             ProviderType::Youtube(t) => t.clone(),
             ProviderType::YoutubeIDs(t) => t.clone(),
@@ -49,10 +49,10 @@ impl Music {
         let builder = self.http.clone().post(endpoint("/music/recommendations").as_str())
             .json(&payload);
 
-        make_request::<MusicRecommendationsResponse>(builder).await
+        make_request::<MusicRecommendationsResponse, Error400>(builder).await
     }
 
-    pub async fn recommendations(&self, tracks: ProviderType) -> HttpResult<ApiResponse<MusicRecommendationsResponse>> {
+    pub async fn recommendations(&self, tracks: ProviderType) -> HttpResult<ApiResponse<MusicRecommendationsResponse, Error400>> {
         self.advanced_recommendations(tracks, None, None, None).await
     }
 }
@@ -95,7 +95,7 @@ pub struct LyricsSingalong {
 pub struct LyricsMeta {
     pub spotify: SpotifyMeta,
     pub deezer: DeezerMeta,
-    pub artists: Vec<ArtistsMeta>,
+    pub artists: Option<Vec<ArtistsMeta>>,
     pub other: OtherMeta
 }
 
@@ -122,7 +122,7 @@ pub struct ArtistsMeta {
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct OtherMeta {
-    pub gain: i64,
+    pub gain: f64,
     pub bpm: f64
 }
 

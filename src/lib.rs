@@ -9,7 +9,6 @@ use crate::{
     bans::Bans,
     kumo::Kumo,
     music::Music,
-    model::*
 };
 use reqwest::{Client as HttpClient, RequestBuilder};
 use std::sync::Arc;
@@ -42,19 +41,26 @@ impl Client {
     }
 }
 
-pub(crate) async fn make_request<S: DeserializeOwned>(c: RequestBuilder) -> reqwest::Result<ApiResponse<S>> {
-    let response = c.send().await?;
+pub(crate) async fn make_request<S: DeserializeOwned, E: DeserializeOwned>(c: RequestBuilder) -> reqwest::Result<ApiResponse<S, E>> {
+    let response = c.send().await?.text().await?;
 
-    return match response.status().as_u16() {
+    return if let Ok(d) = serde_json::from_str::<S>(&response) {
+        Ok(ApiResponse::Success(d))
+    } else {
+        let err = serde_json::from_str::<E>(&response).unwrap();
+        Ok(ApiResponse::Failed(err))
+    }
+
+    /*return match response.status().as_u16() {
         200u16 => {
             let data = response.json::<S>().await?;
             Ok(ApiResponse::Success(data))
         },
         _ => {
-            let err = response.json::<RawError>().await?;
+            let err = response.json::<E>().await?;
             Ok(ApiResponse::Failed(err))
         }
-    }
+    }*/
 }
 
 const BASE_ENDPOINT: &str = "https://api.ksoft.si";
@@ -64,7 +70,7 @@ pub(crate) fn endpoint(to: impl AsRef<str>) -> String {
 }
 
 #[derive(Debug)]
-pub enum ApiResponse<S> {
+pub enum ApiResponse<S, E> {
     Success(S),
-    Failed(RawError)
+    Failed(E)
 }

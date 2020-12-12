@@ -21,13 +21,13 @@ impl Kumo {
     fast: bool,
     more: bool,
     map_zoom: u8,
-    include_map: bool) -> HttpResult<ApiResponse<GisResponse>>{
+    include_map: bool) -> HttpResult<ApiResponse<GisResponse, Error404>>{
         let builder = self.http.clone().get(endpoint("/kumo/gis").as_str())
             .query(&[("q", location.as_ref())])
             .query(&[("map_zoom", map_zoom)])
             .query(&[("fast", fast), ("more", more), ("include_map", include_map)]);
 
-        make_request::<GisResponse>(builder).await
+        make_request::<GisResponse, Error404>(builder).await
     }
 }
 

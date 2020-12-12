@@ -31,12 +31,12 @@ async fn main() {
 }
 ```
 
-Also there is an extra error management tool, it is ApiResponse, its behaviour is almost the same as Option
+Also there is an extra error management tool, it is ApiResponse, its behaviour is almost the same as Result
 
 ```rust
-pub enum ApiResponse<S> {
+pub enum ApiResponse<S, E> {
     Success(S),
-    Failed(RawError) // RawError is an universal api error, from this you can get the specific error using RawError.specific()
+    Failed(E)
 }
 ```
 
@@ -54,9 +54,6 @@ async fn main() {
                 //Do something with the image
             },
             ApiResponse::Failed(why) => {
-                //Or use why as RawError or get the specific error using why.specific()
-                let specific_error = why.specific(); //why (RawError) gets consumed by RawError::specific() method
-                
                 //Do some handling stuff
             }
         }
