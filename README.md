@@ -49,7 +49,7 @@ use ksoft::{Client, ApiResponse};
 async fn main() {
     let client = Client::new("TOKEN HERE"); //crate the client
     
-    if let Ok(image) = client.images.get_image("image id here").await { //image var will be ApiResponse<Image>
+    if let Ok(image) = client.images.get_image("image id here").await { //image var will be ApiResponse<Image, Error404>
         match image {
             ApiResponse::Success(image) => {
                 //Do something with the image
