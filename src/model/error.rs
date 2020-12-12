@@ -1,10 +1,11 @@
 use serde::Deserialize;
 
 #[derive(Clone, Debug, Deserialize)]
-pub struct Error404 {
+pub struct RawError {
     pub code: Option<u16>,
     pub error: Option<bool>,
     pub exists: Option<bool>,
+    pub details: Option<String>,
     pub message: Option<String>,
     pub cache: Option<bool>,
     pub total: Option<i32>,

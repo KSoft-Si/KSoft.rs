@@ -18,20 +18,20 @@ impl Music {
     }
 
     pub async fn advanced_lyrics(&self, q: impl ToString, text_only: bool,
-                                 limit: u32) -> HttpResult<ApiResponse<Lyrics, Error404>> {
+                                 limit: u32) -> HttpResult<ApiResponse<Lyrics, RawError>> {
         let builder = self.http.clone().get(endpoint("/lyrics/search").as_str())
             .query(&[("q", q.to_string())])
             .query(&[("text_only", text_only)])
             .query(&[("limit", limit)]);
 
-        make_request::<Lyrics, Error404>(builder).await
+        make_request::<Lyrics, RawError>(builder).await
     }
 
     pub async fn lyrics(&self, query: impl ToString) -> HttpResult<ApiResponse<Lyrics, Error404>> {
         self.advanced_lyrics(query.to_string(), false, 10).await
     }
 
-    pub async fn advanced_recommendations(&self, tracks: ProviderType, youtube_token: Option<String>, limit: Option<u32>, recommend_type: Option<String>) -> HttpResult<MusicRecommendationsResponse>{
+    pub async fn advanced_recommendations(&self, tracks: ProviderType, youtube_token: Option<String>, limit: Option<u32>, recommend_type: Option<String>) -> HttpResult<ApiResponse<MusicRecommendationsResponse, RawError>>{
         let track_vec = match &tracks {
             ProviderType::Youtube(t) => t.clone(),
             ProviderType::YoutubeIDs(t) => t.clone(),
@@ -46,15 +46,13 @@ impl Music {
             recommend_type
         };
 
-        let response = self.http.clone().post(endpoint("/music/recommendations").as_str())
-            .json(&payload)
-            .send()
-            .await?;
+        let builder = self.http.clone().post(endpoint("/music/recommendations").as_str())
+            .json(&payload);
 
-        response.json::<MusicRecommendationsResponse>().await
+        make_request::<MusicRecommendationsResponse, RawError>(builder).await
     }
 
-    pub async fn recommendations(&self, tracks: ProviderType) -> HttpResult<MusicRecommendationsResponse> {
+    pub async fn recommendations(&self, tracks: ProviderType) -> HttpResult<ApiResponse<MusicRecommendationsResponse, RawError>> {
         self.advanced_recommendations(tracks, None, None, None).await
     }
 }
