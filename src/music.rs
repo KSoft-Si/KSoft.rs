@@ -161,7 +161,7 @@ impl Display for ProviderType {
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct MusicRecommendationsResponse {
-    pub provider: String,
+    pub provider: Option<String>,
     pub total: u32,
     pub tracks: Vec<RecommendationTrack>
 }
