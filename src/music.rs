@@ -19,18 +19,20 @@ impl Music {
     }
 
     pub async fn advanced_lyrics(&self, query: impl ToString, text_only: bool,
-                                 limit: u32) -> HttpResult<Lyrics, MusicError> {
+                                 limit: u32) -> reqwest::Result<Lyrics> {
         if query.to_string().is_empty() { panic!("Query param cannot be empty") }
 
-        let builder = self.http.clone().get(endpoint("/lyrics/search").as_str())
+        let response = self.http.clone().get(endpoint("/lyrics/search").as_str())
             .query(&[("q", query.to_string())])
             .query(&[("text_only", text_only)])
-            .query(&[("limit", limit)]);
+            .query(&[("limit", limit)])
+            .send()
+            .await?;
 
-        make_request::<Lyrics, MusicError>(builder).await
+        response.json::<Lyrics>().await
     }
 
-    pub async fn lyrics(&self, query: impl ToString) -> HttpResult<Lyrics, MusicError> {
+    pub async fn lyrics(&self, query: impl ToString) -> reqwest::Result<Lyrics> {
         self.advanced_lyrics(query, false, 10).await
     }
 

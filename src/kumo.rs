@@ -17,21 +17,6 @@ impl Kumo {
         }
     }
 
-    pub async fn gis<S: AsRef<str>>(&self,
-    location: S,
-    fast: bool,
-    more: bool,
-    map_zoom: u8,
-    include_map: bool) -> HttpResult<GisResponse, KumoError>{
-        if location.as_ref().is_empty() { panic!("Location param cannot be empty") }
-        let builder = self.http.clone().get(endpoint("/kumo/gis").as_str())
-            .query(&[("q", location.as_ref())])
-            .query(&[("map_zoom", map_zoom)])
-            .query(&[("fast", fast), ("more", more), ("include_map", include_map)]);
-
-        make_request::<GisResponse, KumoError>(builder).await
-    }
-
     pub async fn geoip(&self, ip: impl ToString) -> HttpResult<GeoIPResponse, KumoError> {
         let ip_parsed = ip.to_string().parse::<std::net::Ipv4Addr>().expect("Cannot parse as ip");
 
@@ -40,26 +25,14 @@ impl Kumo {
 
         make_request::<GeoIPResponse, KumoError>(builder).await
     }
-}
 
-#[derive(Clone, Debug, Deserialize)]
-pub struct GisResponse {
-    pub error: bool,
-    pub code: u16,
-    pub data: GisResponseData
-}
+    pub async fn convert_currency<C: ToString>(&self, value: f64, from: C, to: C) -> HttpResult<CurrencyConversionResponse, KumoError> {
+        let builder = self.http.clone().get(endpoint("/kumo/currency").as_str())
+            .query(&[("from", from.to_string()), ("to", to.to_string()), ("value", value.to_string())]);
 
-#[derive(Clone, Debug, Deserialize)]
-pub struct GisResponseData {
-    pub address: String,
-    pub lat: f64,
-    pub lon: f64,
-    pub bounding_box: Vec<String>,
-    #[serde(rename = "type")]
-    pub gis_type: Vec<String>,
-    pub map: Option<String>
+        make_request::<CurrencyConversionResponse, KumoError>(builder).await
+    }
 }
-
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct GeoIPResponse {
@@ -70,7 +43,7 @@ pub struct GeoIPResponse {
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct GeoIPResponseData {
-    pub city: String,
+    pub city: Option<String>,
     pub continent_code: String,
     pub continent_name: String,
     pub country_code: String,
@@ -78,8 +51,8 @@ pub struct GeoIPResponseData {
     pub dma_code: Option<String>,
     pub latitude: f64,
     pub longitude: f64,
-    pub postal_code: String,
-    pub region: String,
+    pub postal_code: Option<String>,
+    pub region: Option<String>,
     pub time_zone: String,
     pub apis: GeoIPResponseApis
 }
@@ -92,4 +65,10 @@ pub struct GeoIPResponseApis {
     pub open_street_map: String,
     #[serde(rename = "googlemaps")]
     pub google_maps: String
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct CurrencyConversionResponse {
+    pub value: f64,
+    pub pretty: String
 }

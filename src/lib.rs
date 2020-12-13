@@ -44,25 +44,22 @@ impl Client {
 }
 
 pub(crate) async fn make_request<S: DeserializeOwned, E: DeserializeOwned>(c: RequestBuilder) -> HttpResult<S, E> {
-    let response = c.send().await?.text().await?;
+    let response = c.send().await?;
 
-    return if let Ok(d) = serde_json::from_str::<S>(&response) {
-        Ok(Ok(d))
-    } else {
-        let err = serde_json::from_str::<E>(&response).unwrap();
-        Ok(Err(err))
-    }
+    if response.status().as_u16() >= 500u16 { return Err(HttpResponse::InternalServerError(response.text().await?)) }
 
-    /*return match response.status().as_u16() {
+    println!("{}", response.status().as_u16());
+
+    return match response.status().as_u16() {
         200u16 => {
             let data = response.json::<S>().await?;
-            Ok(ApiResponse::Success(data))
+            Ok(Ok(data))
         },
         _ => {
             let err = response.json::<E>().await?;
-            Ok(ApiResponse::Failed(err))
+            Ok(Err(err))
         }
-    }*/
+    }
 }
 
 const BASE_ENDPOINT: &str = "https://api.ksoft.si";
