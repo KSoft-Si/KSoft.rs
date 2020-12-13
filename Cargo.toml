@@ -3,6 +3,13 @@ name = "ksoft"
 version = "1.0.0"
 authors = ["Alvaro <62391364+AlvaroMS25@users.noreply.github.com>"]
 edition = "2018"
+description = "KSoft.SI api wrapper written in pure Rust"
+documentation = ""
+readme = "README.md"
+repository = ""
+license = "MPL-2.0"
+keywords = ["KSoft", "ksoft", "async"]
+categories = ["api-interactions"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
