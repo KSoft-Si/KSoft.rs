@@ -9,7 +9,7 @@ readme = "README.md"
 repository = "https://github.com/KSoft-Si/KSoft.rs"
 license = "MPL-2.0"
 keywords = ["KSoft", "ksoft", "async"]
-categories = ["api-interactions"]
+categories = ["asynchronous", "api-bindings"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
