@@ -20,7 +20,7 @@ use ksoft::Client;
 
 #[tokio::main]
 async fn main() {
-    let client = Client::new("TOKEN HERE"); //crate the client
+    let client = Client::new("TOKEN HERE"); //create the client
     
     if let Ok(meme) = client.images.random_meme().await { //try to get a random meme handling the possible error
         //Do some logical stuff here...
@@ -43,7 +43,7 @@ use ksoft::{Client, ApiResponse};
 
 #[tokio::main]
 async fn main() {
-    let client = Client::new("TOKEN HERE"); //crate the client
+    let client = Client::new("TOKEN HERE"); //create the client
     
     if let Ok(image) = client.images.get_image("image id here").await { //image var will be ApiResponse<Image, ImageError>
         match image {
