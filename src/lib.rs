@@ -14,8 +14,6 @@ use reqwest::{Client as HttpClient, RequestBuilder, Error};
 use std::sync::Arc;
 use reqwest::header::HeaderMap;
 use serde::de::DeserializeOwned;
-use serde::export::TryFrom;
-use crate::HttpResponse::RequestFailed;
 
 pub struct Client {
     pub token: String,
@@ -47,8 +45,6 @@ pub(crate) async fn make_request<S: DeserializeOwned, E: DeserializeOwned>(c: Re
     let response = c.send().await?;
 
     if response.status().as_u16() >= 500u16 { return Err(HttpResponse::InternalServerError(response.text().await?)) }
-
-    println!("{}", response.status().as_u16());
 
     return match response.status().as_u16() {
         200u16 => {

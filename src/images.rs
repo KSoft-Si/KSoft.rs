@@ -1,10 +1,12 @@
 use reqwest::{Client as HttpClient};
-use crate::HttpResult;
 use std::sync::Arc;
 use serde::Deserialize;
-use crate::ApiResponse;
-use crate::model::*;
-use crate::{make_request, endpoint};
+use crate::{
+    make_request,
+    endpoint,
+    model::*,
+    HttpResult
+};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
 pub struct Images {

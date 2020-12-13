@@ -1,13 +1,12 @@
 use crate::{
-    ApiResponse,
     make_request,
+    endpoint,
     model::*,
     HttpResult
 };
 use reqwest::{Client as HttpClient};
 use std::sync::Arc;
 use serde::{Deserialize, Serialize};
-use crate::endpoint;
 
 pub struct Bans {
     pub http: Arc<HttpClient>

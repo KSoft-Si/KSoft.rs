@@ -1,10 +1,12 @@
 use reqwest::{Client as HttpClient};
 use std::sync::Arc;
 use serde::Deserialize;
-use crate::ApiResponse;
-use crate::HttpResult;
-use crate::model::*;
-use crate::{make_request, endpoint};
+use crate::{
+    make_request,
+    endpoint,
+    model::*,
+    HttpResult
+};
 
 pub struct Kumo {
     pub http: Arc<HttpClient>
