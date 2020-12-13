@@ -20,6 +20,22 @@ impl Music {
         }
     }
 
+    ///Get lyrics of a song specifying custom parameters
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// if let Ok(res) = client.music.advanced_lyrics("despacito", false, 10).await {
+    ///     match res {
+    ///         Ok(lyrics) => {
+    ///             //do something with lyrics
+    ///         },
+    ///         Err(why) => {
+    ///             //do something with the <MusicError> struct
+    ///         }
+    ///     }
+    /// }
+    /// ```
     pub async fn advanced_lyrics(&self, query: impl ToString, text_only: bool,
                                  limit: u32) -> reqwest::Result<Lyrics> {
         if query.to_string().is_empty() { panic!("Query param cannot be empty") }
@@ -34,10 +50,45 @@ impl Music {
         response.json::<Lyrics>().await
     }
 
+    ///Get lyrics of a song
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// if let Ok(res) = client.music.lyrics("despacito").await {
+    ///     match res {
+    ///         Ok(lyrics) => {
+    ///             //do something with lyrics
+    ///         },
+    ///         Err(why) => {
+    ///             //do something with the <MusicError> struct
+    ///         }
+    ///     }
+    /// }
+    /// ```
     pub async fn lyrics(&self, query: impl ToString) -> reqwest::Result<Lyrics> {
         self.advanced_lyrics(query, false, 10).await
     }
 
+    ///Get recommendations of songs with given query specifying custom parameters
+    ///
+    /// **You need a premium plan to use this endpoint**
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// if let Ok(res) = client.music.advanced_recommendations(
+    ///         ProviderType::YoutubeTitles(vec![String::from("despacito")]), None, None, None).await {
+    ///     match res {
+    ///         Ok(recommendations) => {
+    ///             //do something with recommendations
+    ///         },
+    ///         Err(why) => {
+    ///             //do something with the <MusicError> struct
+    ///         }
+    ///     }
+    // }
+    /// ```
     pub async fn advanced_recommendations(&self, tracks: ProviderType, youtube_token: Option<String>, limit: Option<u32>, recommend_type: Option<String>) -> HttpResult<MusicRecommendationsResponse, MusicError>{
         let track_vec = match &tracks {
             ProviderType::Youtube(t) => t.clone(),
@@ -62,6 +113,25 @@ impl Music {
         make_request::<MusicRecommendationsResponse, MusicError>(builder).await
     }
 
+    ///Get recommendations of songs with given query
+    ///
+    /// **You need a premium plan to use this endpoint**
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// if let Ok(res) = client.music.recommendations(
+    ///         ProviderType::YoutubeTitles(vec![String::from("despacito")])).await {
+    ///     match res {
+    ///         Ok(recommendations) => {
+    ///             //do something with recommendations
+    ///         },
+    ///         Err(why) => {
+    ///             //do something with the <MusicError> struct
+    ///         }
+    ///     }
+    // }
+    /// ```
     pub async fn recommendations(&self, tracks: ProviderType) -> HttpResult<MusicRecommendationsResponse, MusicError> {
         self.advanced_recommendations(tracks, None, None, None).await
     }

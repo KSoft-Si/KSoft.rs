@@ -19,8 +19,22 @@ impl Bans {
         }
     }
 
-    async fn _check_bans() {}
-
+    ///Get a list of X number of bans from X page
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// if let Ok(res) = client.bans.advanced_paginate(2, 20).await {
+    ///     match res {
+    ///         Ok(bans) => {
+    ///             //do something with ban list
+    ///         },
+    ///         Err(why) => {
+    ///             //do something with the <BanError> struct
+    ///         }
+    ///     }
+    /// }
+    /// ```
     pub async fn advanced_paginate(&self, page: u8, per_page: u8) -> HttpResult<BanList, BanError>{
         let builder = self.http.clone().get(endpoint("/bans/list").as_str())
             .query(&[("per_page", per_page)])
@@ -29,10 +43,42 @@ impl Bans {
         make_request::<BanList, BanError>(builder).await
     }
 
+    ///Shortcut to advanced_paginate() but with default parameters
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// if let Ok(res) = client.bans.paginate().await {
+    ///     match res {
+    ///         Ok(bans) => {
+    ///             //do something with ban list
+    ///         },
+    ///         Err(why) => {
+    ///             //do something with the <BanError> struct
+    ///         }
+    ///     }
+    /// }
+    /// ```
     pub async fn paginate(&self) -> HttpResult<BanList, BanError> {
         self.advanced_paginate(1, 20).await
     }
 
+    /// Reports an user
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// if let Ok(res) = client.bans.add(23123123, "some reason", "some proof", None, None, None, Some(true)).await {
+    ///     match res {
+    ///         Ok(response) => {
+    ///             //Do something with the response
+    ///         },
+    ///         Err(why) => {
+    ///             //Domething with <BanError>
+    ///         }
+    ///     }
+    /// }
+    /// ```
     pub async fn add<S: ToString>(&self,
       user_id: u64,
       reason: S,
@@ -59,6 +105,15 @@ impl Bans {
         make_request::<BanAdditionResponse, BanError>(builder).await
     }
 
+    ///Check if user is banned ny its id
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// if let Ok(ban) = client.bans.check_ban(12335454).await {
+    ///     //do something with the ban
+    /// }
+    /// ```
     pub async fn check_ban(&self, user_id: u64) -> reqwest::Result<BanCheckResponse> {
         let response = self.http.clone().get(endpoint("/bans/check").as_str())
             .query(&[("user", user_id)])
@@ -68,6 +123,22 @@ impl Bans {
         response.json::<BanCheckResponse>().await
     }
 
+    ///Retrieve info about a ban
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// if let Ok(res) = client.bans.ban_info(1231231234124).await {
+    ///     match res {
+    ///         Ok(ban) => {
+    ///             //do something with ban info
+    ///         },
+    ///         Err(why) => {
+    ///             //do something with the <BanError> struct
+    ///         }
+    ///     }
+    /// }
+    /// ```
     pub async fn ban_info(&self, user_id: u64) -> HttpResult<BanInfoResponse, BanError> {
         let builder = self.http.clone().get(endpoint("/bans/info").as_str())
             .query(&[("user", user_id)]);
@@ -75,6 +146,22 @@ impl Bans {
         make_request::<BanInfoResponse, BanError>(builder).await
     }
 
+    ///Forces the deletion of an user ban. **Must have BAN_MANAGER permission on ksoft to use it**
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// if let Ok(res) = client.bans.delete_forcing(1231231234124).await {
+    ///     match res {
+    ///         Ok(ban) => {
+    ///             //do something with ban info
+    ///         },
+    ///         Err(why) => {
+    ///             //do something with the <BanError> struct
+    ///         }
+    ///     }
+    /// }
+    /// ```
     pub async fn delete_forcing(&self, user_id: u64) -> HttpResult<BanDeletionResponse, BanError> {
         let builder = self.http.clone().delete(endpoint("/bans/delete").as_str())
             .query(&[("user", user_id)])
@@ -83,6 +170,22 @@ impl Bans {
         make_request::<BanDeletionResponse, BanError>(builder).await
     }
 
+    ///Deletes an user ban. **Must have BAN_MANAGER permission on ksoft to use it**
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// if let Ok(res) = client.bans.delete(1231231234124).await {
+    ///     match res {
+    ///         Ok(ban) => {
+    ///             //do something with ban info
+    ///         },
+    ///         Err(why) => {
+    ///             //do something with the <BanError> struct
+    ///         }
+    ///     }
+    /// }
+    /// ```
     pub async fn delete(&self, user_id: u64) -> HttpResult<BanDeletionResponse, BanError> {
         let builder = self.http.clone().delete(endpoint("/bans/delete").as_str())
             .query(&[("user", user_id)]);

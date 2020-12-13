@@ -19,6 +19,22 @@ impl Kumo {
         }
     }
 
+    ///Get data from a given IP address
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// if let Ok(res) = client.kumo.geoip("AmazingNonExistingIP").await {
+    ///     match res {
+    ///         Ok(ip) => {
+    ///             //do something with ip info
+    ///         },
+    ///         Err(why) => {
+    ///             //do something with the <KumoError> struct
+    ///         }
+    ///     }
+    /// }
+    /// ```
     pub async fn geoip(&self, ip: impl ToString) -> HttpResult<GeoIPResponse, KumoError> {
         let ip_parsed = ip.to_string().parse::<std::net::Ipv4Addr>().expect("Cannot parse as ip");
 
@@ -28,6 +44,21 @@ impl Kumo {
         make_request::<GeoIPResponse, KumoError>(builder).await
     }
 
+    ///Performs currency conversion
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// if let Ok(res) = client.kumo.convert_currency(120.0, "USD", "EUR").await {
+    ///     match res {
+    ///         Ok(conversion) => {
+    ///             //do something with conversion info
+    ///         },
+    ///         Err(why) => {
+    ///             //do something with the <KumoError> struct
+    ///         }
+    ///     }
+    /// }
+    /// ```
     pub async fn convert_currency<C: ToString>(&self, value: f64, from: C, to: C) -> HttpResult<CurrencyConversionResponse, KumoError> {
         let builder = self.http.clone().get(endpoint("/kumo/currency").as_str())
             .query(&[("from", from.to_string()), ("to", to.to_string()), ("value", value.to_string())]);
