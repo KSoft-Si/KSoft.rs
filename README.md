@@ -50,7 +50,7 @@ async fn main() {
             Ok(image) => {
                 //Do something with the image
             },
-            Ok(why) => { //In this case, why will be an ImageError struct
+            Err(why) => { //In this case, why will be an ImageError struct
                 //Do some handling stuff
             }
         }
