@@ -10,7 +10,7 @@ use crate::{
     kumo::Kumo,
     music::Music,
 };
-use reqwest::{Client as HttpClient, RequestBuilder, Error};
+use reqwest::{Client as HttpClient, RequestBuilder};
 use std::sync::Arc;
 use reqwest::header::HeaderMap;
 use serde::de::DeserializeOwned;
@@ -66,6 +66,8 @@ pub(crate) fn endpoint(to: impl AsRef<str>) -> String {
 
 
 pub type HttpResult<S, E> = Result<ApiResponse<S, E>, HttpResponse>;
+
+/// Result renaming used to difference between an http error and an API error or unsuccessful response
 pub type ApiResponse<S, E> = Result<S, E>;
 
 #[derive(Debug)]
@@ -75,7 +77,7 @@ pub enum HttpResponse {
 }
 
 impl From<reqwest::Error> for HttpResponse {
-    fn from(e: Error) -> Self {
+    fn from(e: reqwest::Error) -> Self {
         HttpResponse::RequestFailed(e)
     }
 }
