@@ -44,7 +44,7 @@ impl Client {
 pub(crate) async fn make_request<S: DeserializeOwned, E: DeserializeOwned>(c: RequestBuilder) -> HttpResult<S, E> {
     let response = c.send().await?;
 
-    if response.status().as_u16() >= 500u16 { return Err(HttpResponse::InternalServerError(response.text().await?)) }
+    if response.status().as_u16() >= 500u16 { return Err(HttpError::InternalServerError(response.text().await?)) }
 
     return match response.status().as_u16() {
         200u16 => {
@@ -65,19 +65,19 @@ pub(crate) fn endpoint(to: impl AsRef<str>) -> String {
 }
 
 
-pub type HttpResult<S, E> = Result<ApiResponse<S, E>, HttpResponse>;
+pub type HttpResult<S, E> = Result<ApiResponse<S, E>, HttpError>;
 
 /// Result renaming used to difference between an http error and an API error or unsuccessful response
 pub type ApiResponse<S, E> = Result<S, E>;
 
 #[derive(Debug)]
-pub enum HttpResponse {
+pub enum HttpError {
     RequestFailed(reqwest::Error),
     InternalServerError(String)
 }
 
-impl From<reqwest::Error> for HttpResponse {
+impl From<reqwest::Error> for HttpError {
     fn from(e: reqwest::Error) -> Self {
-        HttpResponse::RequestFailed(e)
+        HttpError::RequestFailed(e)
     }
 }
