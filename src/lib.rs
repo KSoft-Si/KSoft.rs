@@ -73,8 +73,6 @@ impl Client {
 pub(crate) async fn make_request<S: DeserializeOwned, E: DeserializeOwned>(c: RequestBuilder) -> HttpResult<S, E> {
     let response = c.send().await?;
 
-    if response.status().as_u16() >= 500u16 { return Err(HttpError::InternalServerError(response.text().await?)) }
-
     return match response.status().as_u16() {
         c if c == 429u16 => Err(HttpError::RateLimited),
         c if c >= 500u16 => Err(HttpError::InternalServerError(response.text().await?)),

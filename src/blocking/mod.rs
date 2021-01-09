@@ -53,8 +53,6 @@ impl Client {
 pub(self) fn make_request<S: DeserializeOwned, E: DeserializeOwned>(c: RequestBuilder) -> HttpResult<S, E> {
     let response = c.send()?;
 
-    if response.status().as_u16() >= 500u16 { return Err(HttpError::InternalServerError(response.text()?)) }
-
     return match response.status().as_u16() {
         c if c == 429u16 => Err(HttpError::RateLimited),
         c if c >= 500u16 => Err(HttpError::InternalServerError(response.text()?)),

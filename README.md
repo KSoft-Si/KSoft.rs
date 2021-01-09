@@ -7,7 +7,7 @@ A [KSoft](https://api.ksoft.si/) api wrapper written in pure Rust
 ### Cargo.toml
 ```toml
 [dependencies.ksoft]
-version = "1.0.6"
+version = "1.1.0"
 
 [dependencies.tokio]
 version = "1.0"
@@ -68,7 +68,7 @@ Both features ***cannot*** be enabled at the same time
 ### Cargo.toml
 ```toml
 [dependencies.ksoft]
-version = "1.0.6"
+version = "1.1.0"
 default-features=false
 features = ["blocking"]
 ```
