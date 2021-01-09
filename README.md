@@ -60,7 +60,7 @@ async fn main() {
 }
 ```
 
-### Usage for *blocking* client
+## Usage for *blocking* client
 *This is an optional feature for those people that want a blocking client for non-asynchronous contexts*
 
 Both features ***cannot*** be enabled at the same time
