@@ -1,6 +1,6 @@
 [package]
 name = "ksoft"
-version = "1.0.5"
+version = "1.0.6"
 authors = ["Alvaro <62391364+AlvaroMS25@users.noreply.github.com>"]
 edition = "2018"
 description = "KSoft.SI api wrapper written in pure Rust"
@@ -13,10 +13,30 @@ categories = ["asynchronous", "api-bindings"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+blocking = []
+default = ["tokio", "async-trait", "tracing-futures"]
+
 [dependencies.serde]
-version = "1.0.117"
+version = "1.0.118"
 features = ["derive"]
 
 [dependencies.reqwest]
-version = "0.10.8"
-features = ["json"]
+version = "0.11.0"
+features = ["json", "blocking"]
+
+[dependencies.tokio]
+version = "1.0.1"
+features = ["rt", "sync", "time"]
+optional = true
+
+[dependencies.async-trait]
+version = "0.1.42"
+optional = true
+
+[dependencies.tracing]
+version = "0.1.22"
+
+[dependencies.tracing-futures]
+version = "0.2.4"
+optional = true

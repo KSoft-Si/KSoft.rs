@@ -1,9 +1,15 @@
-use crate::{make_request, endpoint, model::*, HttpResult, EventHandler};
-use reqwest::{Client as HttpClient};
+use crate::{
+    endpoint,
+    model::*,
+    HttpResult
+};
+use super::{make_request, EventHandler};
+use reqwest::blocking::{Client as HttpClient};
 use std::sync::Arc;
-use std::time::{SystemTime, UNIX_EPOCH};
 use crate::model::bans::*;
+use std::time::{SystemTime, UNIX_EPOCH};
 use tracing::error;
+use std::thread;
 
 pub struct Bans {
     http: Arc<HttpClient>
@@ -12,14 +18,14 @@ pub struct Bans {
 impl Bans {
     pub fn new(http_client: Arc<HttpClient>) -> Self {
         Self {
-            http: http_client,
+            http: http_client
         }
     }
 
     pub(crate) fn event_handler(&self, handler: impl EventHandler + Send + Sync + 'static) {
         let client = self.http.clone();
-        tokio::spawn(async move {
-            let delay = tokio::time::Duration::from_secs(5 * 60);
+        thread::spawn(move || {
+            let delay = std::time::Duration::from_secs(5 * 60);
             let endpoint = endpoint("/bans/updates");
 
             let mut last_check = SystemTime::now()
@@ -30,14 +36,13 @@ impl Bans {
             loop {
                 match client.clone().get(endpoint.as_str())
                     .query(&[("timestamp", last_check)])
-                    .send()
-                    .await {
+                    .send() {
                     Ok(res) => {
-                        match res.json().await {
+                        match res.json() {
                             Ok(RawBanUpdate { data, timestamp }) => {
                                 last_check = timestamp;
                                 if data.len() >= 1 {
-                                    handler.ban_updated(data).await;
+                                    handler.ban_updated(data);
                                 }
                             },
                             Err(e) => {
@@ -50,7 +55,7 @@ impl Bans {
                     }
                 }
 
-                tokio::time::sleep(delay).await;
+                thread::sleep(delay)
             }
         });
     }
@@ -60,7 +65,7 @@ impl Bans {
     /// # Example
     ///
     /// ```rust,ignore
-    /// if let Ok(res) = client.bans.advanced_paginate(2, 20).await {
+    /// if let Ok(res) = client.bans.advanced_paginate(2, 20) {
     ///     match res {
     ///         Ok(bans) => {
     ///             //do something with ban list
@@ -71,12 +76,12 @@ impl Bans {
     ///     }
     /// }
     /// ```
-    pub async fn advanced_paginate(&self, page: u8, per_page: u8) -> HttpResult<BanList, BanError>{
+    pub fn advanced_paginate(&self, page: u8, per_page: u8) -> HttpResult<BanList, BanError>{
         let builder = self.http.clone().get(endpoint("/bans/list").as_str())
             .query(&[("per_page", per_page)])
             .query(&[("page", page)]);
 
-        make_request::<BanList, BanError>(builder).await
+        make_request::<BanList, BanError>(builder)
     }
 
     ///Shortcut to advanced_paginate() but with default parameters
@@ -84,7 +89,7 @@ impl Bans {
     /// # Example
     ///
     /// ```rust,ignore
-    /// if let Ok(res) = client.bans.paginate().await {
+    /// if let Ok(res) = client.bans.paginate() {
     ///     match res {
     ///         Ok(bans) => {
     ///             //do something with ban list
@@ -95,8 +100,8 @@ impl Bans {
     ///     }
     /// }
     /// ```
-    pub async fn paginate(&self) -> HttpResult<BanList, BanError> {
-        self.advanced_paginate(1, 20).await
+    pub fn paginate(&self) -> HttpResult<BanList, BanError> {
+        self.advanced_paginate(1, 20)
     }
 
     /// Reports an user
@@ -104,7 +109,7 @@ impl Bans {
     /// # Example
     ///
     /// ```rust,ignore
-    /// if let Ok(res) = client.bans.add(23123123, "some reason", "some proof", None, None, None, Some(true)).await {
+    /// if let Ok(res) = client.bans.add(23123123, "some reason", "some proof", None, None, None, Some(true)) {
     ///     match res {
     ///         Ok(response) => {
     ///             //Do something with the response
@@ -115,7 +120,7 @@ impl Bans {
     ///     }
     /// }
     /// ```
-    pub async fn add<S: ToString>(&self,
+    pub fn add<S: ToString>(&self,
       user_id: u64,
       reason: S,
       proof: S,
@@ -138,7 +143,7 @@ impl Bans {
                 appeal_possible
             });
 
-        make_request::<BanAdditionResponse, BanError>(builder).await
+        make_request::<BanAdditionResponse, BanError>(builder)
     }
 
     ///Check if user is banned ny its id
@@ -146,17 +151,16 @@ impl Bans {
     /// # Example
     ///
     /// ```rust,ignore
-    /// if let Ok(ban) = client.bans.check_ban(12335454).await {
+    /// if let Ok(ban) = client.bans.check_ban(12335454) {
     ///     //do something with the ban
     /// }
     /// ```
-    pub async fn check_ban(&self, user_id: u64) -> reqwest::Result<BanCheckResponse> {
+    pub fn check_ban(&self, user_id: u64) -> reqwest::Result<BanCheckResponse> {
         let response = self.http.clone().get(endpoint("/bans/check").as_str())
             .query(&[("user", user_id)])
-            .send()
-            .await?;
+            .send()?;
 
-        response.json::<BanCheckResponse>().await
+        response.json::<BanCheckResponse>()
     }
 
     ///Retrieve info about a ban
@@ -164,7 +168,7 @@ impl Bans {
     /// # Example
     ///
     /// ```rust,ignore
-    /// if let Ok(res) = client.bans.ban_info(1231231234124).await {
+    /// if let Ok(res) = client.bans.ban_info(1231231234124) {
     ///     match res {
     ///         Ok(ban) => {
     ///             //do something with ban info
@@ -175,11 +179,11 @@ impl Bans {
     ///     }
     /// }
     /// ```
-    pub async fn ban_info(&self, user_id: u64) -> HttpResult<BanInfoResponse, BanError> {
+    pub fn ban_info(&self, user_id: u64) -> HttpResult<BanInfoResponse, BanError> {
         let builder = self.http.clone().get(endpoint("/bans/info").as_str())
             .query(&[("user", user_id)]);
 
-        make_request::<BanInfoResponse, BanError>(builder).await
+        make_request::<BanInfoResponse, BanError>(builder)
     }
 
     ///Forces the deletion of an user ban. **Must have BAN_MANAGER permission on ksoft to use it**
@@ -187,7 +191,7 @@ impl Bans {
     /// # Example
     ///
     /// ```rust,ignore
-    /// if let Ok(res) = client.bans.delete_forcing(1231231234124).await {
+    /// if let Ok(res) = client.bans.delete_forcing(1231231234124) {
     ///     match res {
     ///         Ok(ban) => {
     ///             //do something with ban info
@@ -198,12 +202,12 @@ impl Bans {
     ///     }
     /// }
     /// ```
-    pub async fn delete_forcing(&self, user_id: u64) -> HttpResult<BanDeletionResponse, BanError> {
+    pub fn delete_forcing(&self, user_id: u64) -> HttpResult<BanDeletionResponse, BanError> {
         let builder = self.http.clone().delete(endpoint("/bans/delete").as_str())
             .query(&[("user", user_id)])
             .query(&[("force", true)]);
 
-        make_request::<BanDeletionResponse, BanError>(builder).await
+        make_request::<BanDeletionResponse, BanError>(builder)
     }
 
     ///Deletes an user ban. **Must have BAN_MANAGER permission on ksoft to use it**
@@ -211,7 +215,7 @@ impl Bans {
     /// # Example
     ///
     /// ```rust,ignore
-    /// if let Ok(res) = client.bans.delete(1231231234124).await {
+    /// if let Ok(res) = client.bans.delete(1231231234124) {
     ///     match res {
     ///         Ok(ban) => {
     ///             //do something with ban info
@@ -222,10 +226,10 @@ impl Bans {
     ///     }
     /// }
     /// ```
-    pub async fn delete(&self, user_id: u64) -> HttpResult<BanDeletionResponse, BanError> {
+    pub fn delete(&self, user_id: u64) -> HttpResult<BanDeletionResponse, BanError> {
         let builder = self.http.clone().delete(endpoint("/bans/delete").as_str())
             .query(&[("user", user_id)]);
 
-        make_request::<BanDeletionResponse, BanError>(builder).await
+        make_request::<BanDeletionResponse, BanError>(builder)
     }
 }

@@ -1,12 +1,12 @@
-use reqwest::{Client as HttpClient};
+use reqwest::blocking::{Client as HttpClient};
 use std::sync::Arc;
 use crate::{
-    make_request,
     endpoint,
     model::*,
     HttpResult
 };
 use crate::model::kumo::*;
+use super::make_request;
 
 pub struct Kumo {
     http: Arc<HttpClient>
@@ -24,7 +24,7 @@ impl Kumo {
     /// # Example
     ///
     /// ```rust,ignore
-    /// if let Ok(res) = client.kumo.geoip("AmazingNonExistingIP").await {
+    /// if let Ok(res) = client.kumo.geoip("AmazingNonExistingIP") {
     ///     match res {
     ///         Ok(ip) => {
     ///             //do something with ip info
@@ -35,20 +35,20 @@ impl Kumo {
     ///     }
     /// }
     /// ```
-    pub async fn geoip(&self, ip: impl ToString) -> HttpResult<GeoIPResponse, KumoError> {
+    pub fn geoip(&self, ip: impl ToString) -> HttpResult<GeoIPResponse, KumoError> {
         let ip_parsed = ip.to_string().parse::<std::net::Ipv4Addr>().expect("Cannot parse as ip");
 
         let builder = self.http.clone().get(endpoint("/kumo/geoip").as_str())
             .query(&[("ip", ip_parsed.to_string())]);
 
-        make_request::<GeoIPResponse, KumoError>(builder).await
+        make_request::<GeoIPResponse, KumoError>(builder)
     }
 
     ///Performs currency conversion
     ///
     /// # Example
     /// ```rust,ignore
-    /// if let Ok(res) = client.kumo.convert_currency(120.0, "USD", "EUR").await {
+    /// if let Ok(res) = client.kumo.convert_currency(120.0, "USD", "EUR") {
     ///     match res {
     ///         Ok(conversion) => {
     ///             //do something with conversion info
@@ -59,10 +59,10 @@ impl Kumo {
     ///     }
     /// }
     /// ```
-    pub async fn convert_currency<C: ToString>(&self, value: f64, from: C, to: C) -> HttpResult<CurrencyConversionResponse, KumoError> {
+    pub fn convert_currency<C: ToString>(&self, value: f64, from: C, to: C) -> HttpResult<CurrencyConversionResponse, KumoError> {
         let builder = self.http.clone().get(endpoint("/kumo/currency").as_str())
             .query(&[("from", from.to_string()), ("to", to.to_string()), ("value", value.to_string())]);
 
-        make_request::<CurrencyConversionResponse, KumoError>(builder).await
+        make_request::<CurrencyConversionResponse, KumoError>(builder)
     }
 }

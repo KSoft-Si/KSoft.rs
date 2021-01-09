@@ -2,15 +2,15 @@
 
 A [KSoft](https://api.ksoft.si/) api wrapper written in pure Rust
 
-## Usage
+## Usage for *asynchronous* client
 
 ### Cargo.toml
 ```toml
 [dependencies.ksoft]
-version = "1.0.5"
+version = "1.0.6"
 
 [dependencies.tokio]
-version = "0.2"
+version = "1.0"
 features = ["macros"]
 ```
 
@@ -39,7 +39,7 @@ pub type ApiResponse<S, E> = Result<S, E>;
 
 #### ApiResponse example
 ```rust
-use ksoft::{Client, ApiResponse};
+use ksoft::Client;
 
 #[tokio::main]
 async fn main() {
@@ -54,6 +54,34 @@ async fn main() {
                 //Do some handling stuff
             }
         }
+    } else {
+        //Error handling stuff
+    }
+}
+```
+
+### Usage for *blocking* client
+*This is an optional feature for those people that want a blocking client for non-asynchronous contexts*
+
+Both features ***cannot*** be enabled at the same time
+
+### Cargo.toml
+```toml
+[dependencies.ksoft]
+version = "1.0.6"
+default-features=false
+features = ["blocking"]
+```
+
+### Usage example
+```rust
+use ksoft::blocking::Client
+
+fn main() {
+    let client = Client::new("TOKEN HERE"); //create the client
+    
+    if let Ok(meme) = client.images.random_meme() { //try to get a random meme handling the possible error
+        //Do some logical stuff here...
     } else {
         //Error handling stuff
     }

@@ -1,20 +1,39 @@
-pub mod images;
 pub mod model;
-pub mod bans;
-pub mod kumo;
-pub mod music;
+pub mod prelude;
 
+
+#[cfg(feature = "default")]
+pub use async_trait::async_trait;
+#[cfg(feature = "default")]
+use reqwest::{Client as HttpClient, RequestBuilder};
+#[cfg(feature = "default")]
+use std::sync::Arc;
+#[cfg(feature = "default")]
+use reqwest::header::HeaderMap;
+#[cfg(feature = "default")]
+use serde::de::DeserializeOwned;
+
+#[cfg(feature = "blocking")]
+pub mod blocking;
+#[cfg(feature = "default")]
+pub mod images;
+#[cfg(feature = "default")]
+pub mod bans;
+#[cfg(feature = "default")]
+pub mod kumo;
+#[cfg(feature = "default")]
+pub mod music;
+#[cfg(feature = "default")]
 use crate::{
     images::Images,
     bans::Bans,
     kumo::Kumo,
     music::Music,
+    model::bans::BanUpdate
 };
-use reqwest::{Client as HttpClient, RequestBuilder};
-use std::sync::Arc;
-use reqwest::header::HeaderMap;
-use serde::de::DeserializeOwned;
 
+//Asynchronous client
+#[cfg(feature = "default")]
 pub struct Client {
     pub token: String,
     pub images: Images,
@@ -24,11 +43,16 @@ pub struct Client {
     pub http: Arc<HttpClient>
 }
 
+#[cfg(feature = "default")]
 impl Client {
     pub fn new(token: impl ToString) -> Self {
         let mut default_auth_header =  HeaderMap::new();
         default_auth_header.insert("Authorization", format!("Bearer {}", token.to_string()).parse().expect("Cannot parse default headers"));
-        let http_client = Arc::new(HttpClient::builder().default_headers(default_auth_header).build().expect("Something went wrong when creating http client"));
+        let http_client = Arc::new(HttpClient::builder()
+            .default_headers(default_auth_header)
+            .user_agent("KSoft.rs")
+            .build()
+            .expect("Something went wrong when creating http client"));
 
         Self {
             token: token.to_string(),
@@ -39,14 +63,21 @@ impl Client {
             http: http_client
         }
     }
+
+    pub fn event_handler(&self, handler: impl EventHandler + Send + Sync + 'static ) {
+        self.bans.event_handler(handler);
+    }
 }
 
+#[cfg(feature = "default")]
 pub(crate) async fn make_request<S: DeserializeOwned, E: DeserializeOwned>(c: RequestBuilder) -> HttpResult<S, E> {
     let response = c.send().await?;
 
     if response.status().as_u16() >= 500u16 { return Err(HttpError::InternalServerError(response.text().await?)) }
 
     return match response.status().as_u16() {
+        c if c == 429u16 => Err(HttpError::RateLimited),
+        c if c >= 500u16 => Err(HttpError::InternalServerError(response.text().await?)),
         200u16 => {
             let data = response.json::<S>().await?;
             Ok(Ok(data))
@@ -73,11 +104,19 @@ pub type ApiResponse<S, E> = Result<S, E>;
 #[derive(Debug)]
 pub enum HttpError {
     RequestFailed(reqwest::Error),
-    InternalServerError(String)
+    InternalServerError(String),
+    RateLimited
 }
 
 impl From<reqwest::Error> for HttpError {
     fn from(e: reqwest::Error) -> Self {
         HttpError::RequestFailed(e)
     }
+}
+
+#[cfg(feature = "default")]
+#[async_trait]
+pub trait EventHandler: Send + Sync + 'static {
+    ///Event triggered every 5 minutes if there is any ban update
+    async fn ban_updated(&self, _data: Vec<BanUpdate>) {}
 }
