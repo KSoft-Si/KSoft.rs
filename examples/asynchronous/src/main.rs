@@ -3,8 +3,7 @@ use ksoft::{
     Client,
     EventHandler as KSoftEvents,
     model::bans::BanUpdate,
-    async_trait,
-    prelude::SpanType
+    prelude::{SpanType, async_trait}
 };
 
 #[tokio::main]
