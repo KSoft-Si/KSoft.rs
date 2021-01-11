@@ -3,7 +3,7 @@ pub mod prelude;
 
 
 #[cfg(feature = "default")]
-pub use async_trait::async_trait;
+use async_trait::async_trait;
 #[cfg(feature = "default")]
 use reqwest::{Client as HttpClient, RequestBuilder};
 #[cfg(feature = "default")]

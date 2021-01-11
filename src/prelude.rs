@@ -1,5 +1,8 @@
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
+#[cfg(feature = "default")]
+pub use async_trait::async_trait;
+
 #[derive(Clone)]
 pub enum ProviderType {
     Youtube(Vec<String>),
