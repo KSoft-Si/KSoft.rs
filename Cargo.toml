@@ -14,7 +14,7 @@ categories = ["asynchronous", "api-bindings"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-blocking = []
+blocking = ["reqwest/blocking"]
 default = ["tokio", "async-trait", "tracing-futures"]
 serenity = ["typemap_rev"]
 
@@ -24,7 +24,7 @@ features = ["derive"]
 
 [dependencies.reqwest]
 version = "0.11.0"
-features = ["json", "blocking"]
+features = ["json"]
 
 [dependencies.tokio]
 version = "1.0.1"
