@@ -45,6 +45,27 @@ impl Client {
         }
     }
 
+    /// Sets the event handler
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use ksoft::blocking::{Client, EventHandler};
+    /// use ksoft::model::bans::BanUpdate;
+    ///
+    /// fn main() {
+    ///     let client = Client::new(std::env::var("KSOFT_TOKEN").expect("KSoft token not found"));
+    ///     client.event_handler(Handler);
+    /// }
+    ///
+    /// struct Handler;
+    ///
+    ///
+    /// impl EventHandler for Handler {
+    ///     fn ban_updated(&self, data: Vec<BanUpdate>) {
+    ///         println!("Ban update received: {:#?}", data);
+    ///     }
+    /// }
     pub fn event_handler(&self, handler: impl EventHandler + Send + Sync + 'static ) {
         self.bans.event_handler(handler);
     }

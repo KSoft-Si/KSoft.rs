@@ -31,6 +31,8 @@ use crate::{
     music::Music,
     model::bans::BanUpdate
 };
+#[cfg(feature = "serenity")]
+use typemap_rev::TypeMapKey;
 
 //Asynchronous client
 #[cfg(feature = "default")]
@@ -64,9 +66,37 @@ impl Client {
         }
     }
 
+    /// Sets the event handler
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use ksoft::{Client, EventHandler};
+    /// use ksoft::model::bans::BanUpdate;
+    /// use ksoft::prelude::async_trait;
+    ///
+    /// #[tokio::main]
+    /// async fn main() {
+    ///     let client = Client::new(std::env::var("KSOFT_TOKEN").expect("KSoft token not found"));
+    ///     client.event_handler(Handler);
+    /// }
+    ///
+    /// struct Handler;
+    ///
+    /// #[async_trait]
+    /// impl EventHandler for Handler {
+    ///     async fn ban_updated(&self, data: Vec<BanUpdate>) {
+    ///         println!("Ban update received: {:#?}", data);
+    ///     }
+    /// }
     pub fn event_handler(&self, handler: impl EventHandler + Send + Sync + 'static ) {
         self.bans.event_handler(handler);
     }
+}
+
+#[cfg(feature = "serenity")]
+impl TypeMapKey for Client {
+    type Value = Arc<Self>;
 }
 
 #[cfg(feature = "default")]

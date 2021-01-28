@@ -16,6 +16,7 @@ categories = ["asynchronous", "api-bindings"]
 [features]
 blocking = []
 default = ["tokio", "async-trait", "tracing-futures"]
+serenity = ["typemap_rev"]
 
 [dependencies.serde]
 version = "1.0.118"
@@ -39,4 +40,8 @@ version = "0.1.22"
 
 [dependencies.tracing-futures]
 version = "0.2.4"
+optional = true
+
+[dependencies.typemap_rev]
+version = "0.1.4"
 optional = true
