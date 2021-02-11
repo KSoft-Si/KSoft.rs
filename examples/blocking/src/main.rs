@@ -10,6 +10,7 @@ use ksoft::{
 
 fn main() {
     let ksoft = Client::new(env::var("KSOFT_TOKEN").unwrap());
+    ksoft.event_handler(EventHandler);
 
     if let Ok(res) = ksoft.images.random_reddit("some subreddit", true, SpanType::Month) {
         match res {

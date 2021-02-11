@@ -11,4 +11,4 @@ path = "../../"
 
 [dependencies.tokio]
 version = "1.0"
-features = ["macros"]
+features = ["macros", "rt-multi-thread"]
