@@ -1,4 +1,4 @@
-# KSoft.rs
+# KSoft.rs  [![badge]][link]
 
 A [KSoft](https://api.ksoft.si/) api wrapper written in pure Rust
 
@@ -87,3 +87,6 @@ fn main() {
     }
 }
 ```
+
+[link]: https://crates.io/crates/ksoft
+[badge]: https://img.shields.io/crates/v/ksoft?style=flat-square
