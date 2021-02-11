@@ -3,7 +3,7 @@ use reqwest::{Client as HttpClient};
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 use crate::model::bans::*;
-use tracing::error;
+use tracing::warn;
 
 pub struct Bans {
     http: Arc<HttpClient>
@@ -41,12 +41,12 @@ impl Bans {
                                 }
                             },
                             Err(e) => {
-                                error!("Something went wrong when deserializing ban updates response from server: {:#?}", e);
+                                warn!("Something went wrong when deserializing ban updates response from server: {:#?}", e);
                             }
                         }
                     },
                     Err(e) => {
-                        error!("KSoft.si server responded with an error while trying to get ban updates: {:#?}", e);
+                        warn!("KSoft.si server responded with an error while trying to get ban updates: {:#?}", e);
                     }
                 }
 
