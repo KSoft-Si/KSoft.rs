@@ -7,7 +7,7 @@ A [KSoft](https://api.ksoft.si/) api wrapper written in pure Rust
 ### Cargo.toml
 ```toml
 [dependencies.ksoft]
-version = "1.1.2"
+version = "1.1.3"
 
 [dependencies.tokio]
 version = "1.0"
