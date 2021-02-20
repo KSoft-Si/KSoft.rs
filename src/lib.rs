@@ -34,6 +34,13 @@ use crate::{
 #[cfg(feature = "serenity")]
 use typemap_rev::TypeMapKey;
 
+use std::{
+    error::Error,
+    fmt::{
+        Display, Formatter, Result as FmtResult
+    }
+};
+
 //Asynchronous client
 #[cfg(feature = "default")]
 pub struct Client {
@@ -139,6 +146,18 @@ pub enum HttpError {
 impl From<reqwest::Error> for HttpError {
     fn from(e: reqwest::Error) -> Self {
         HttpError::RequestFailed(e)
+    }
+}
+
+impl Error for HttpError {}
+
+impl Display for HttpError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        match self {
+            Self::RequestFailed(why) => write!(f, "Request failed: {}", why.to_string()),
+            Self::InternalServerError(why) => write!(f, "Internal server error: {}", why),
+            Self::RateLimited => write!(f, "KSoft server responded with code 429 (Ratelimited)")
+        }
     }
 }
 
