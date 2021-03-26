@@ -125,3 +125,54 @@ pub struct YoutubeTrack {
     pub thumbnail: String,
     pub description: String,
 }
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct Artist {
+    pub id: u64,
+    pub name: String,
+    pub albums: Vec<ArtistAlbum>,
+    pub tracks: Vec<ArtistTrack>
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct ArtistAlbum {
+    pub id: u64,
+    pub name: String,
+    pub year: u16
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct ArtistTrack {
+    pub id: u64,
+    pub name: String
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct Album {
+    pub id: u64,
+    pub name: String,
+    pub year: u16,
+    pub artist: AlbumArtist,
+    pub tracks: Vec<ArtistTrack>
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct AlbumArtist {
+    pub id: u64,
+    pub name: String
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct Track {
+    pub name: String,
+    pub artist: AlbumArtist,
+    pub albums: Vec<TrackAlbum>,
+    pub lyrics: String
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct TrackAlbum {
+    pub id: u64,
+    pub name: String,
+    pub year: u16
+}

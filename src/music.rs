@@ -135,4 +135,22 @@ impl Music {
     pub async fn recommendations(&self, tracks: ProviderType) -> HttpResult<MusicRecommendationsResponse, MusicError> {
         self.advanced_recommendations(tracks, None, None, None).await
     }
+
+    pub async fn artist(&self, id: impl Into<u64>) -> HttpResult<Artist, MusicError> {
+        let builder = self.http.clone().get(endpoint(format!("/lyrics/artist/{}/", id.into())).as_str());
+
+        make_request::<Artist, MusicError>(builder).await
+    }
+
+    pub async fn album(&self, id: impl Into<u64>) -> HttpResult<Album, MusicError> {
+        let builder = self.http.clone().get(endpoint(format!("/lyrics/album/{}/", id.into())).as_str());
+
+        make_request::<Album, MusicError>(builder).await
+    }
+
+    pub async fn track(&self, id: impl Into<u64>) -> HttpResult<Track, MusicError> {
+        let builder = self.http.clone().get(endpoint(format!("/lyrics/track/{}/", id.into())).as_str());
+
+        make_request::<Track, MusicError>(builder).await
+    }
 }
