@@ -130,7 +130,7 @@ pub(crate) fn endpoint(to: impl AsRef<str>) -> String {
     format!("{}{}", BASE_ENDPOINT, to.as_ref())
 }
 
-
+/// KSoft.rs base http response, not all methods return this
 pub type HttpResult<S, E> = Result<ApiResponse<S, E>, HttpError>;
 
 /// Result renaming used to difference between an http error and an API error or unsuccessful response

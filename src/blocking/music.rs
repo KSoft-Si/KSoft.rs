@@ -133,4 +133,67 @@ impl Music {
     pub fn recommendations(&self, tracks: ProviderType) -> HttpResult<MusicRecommendationsResponse, MusicError> {
         self.advanced_recommendations(tracks, None, None, None)
     }
+
+    /// Get artist information by a given ID
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// if let Ok(res) = client.music.artist(28333u64) {
+    ///     match res {
+    ///         Ok(artist) => {
+    ///             // do something with the artist
+    ///         },
+    ///         Err(why) => {
+    ///             // handle error
+    ///         }
+    ///     }
+    /// }
+    pub fn artist(&self, id: impl Into<u64>) -> HttpResult<Artist, MusicError> {
+        let builder = self.http.clone().get(endpoint(format!("/lyrics/artist/{}/", id.into())).as_str());
+
+        make_request::<Artist, MusicError>(builder)
+    }
+
+    /// Get album information by a given ID
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// if let Ok(res) = client.music.album(88151u64) {
+    ///     match res {
+    ///         Ok(album) => {
+    ///             // do something with the album
+    ///         },
+    ///         Err(why) => {
+    ///             // handle error
+    ///         }
+    ///     }
+    /// }
+    pub fn album(&self, id: impl Into<u64>) -> HttpResult<Album, MusicError> {
+        let builder = self.http.clone().get(endpoint(format!("/lyrics/album/{}/", id.into())).as_str());
+
+        make_request::<Album, MusicError>(builder)
+    }
+
+    /// Get album information by a given ID
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// if let Ok(res) = client.music.track(2656006u64) {
+    ///     match res {
+    ///         Ok(track) => {
+    ///             // do something with the track
+    ///         },
+    ///         Err(why) => {
+    ///             // handle error
+    ///         }
+    ///     }
+    /// }
+    pub fn track(&self, id: impl Into<u64>) -> HttpResult<Track, MusicError> {
+        let builder = self.http.clone().get(endpoint(format!("/lyrics/track/{}/", id.into())).as_str());
+
+        make_request::<Track, MusicError>(builder)
+    }
 }
