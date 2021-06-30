@@ -10,11 +10,11 @@ use crate::model::music::*;
 use crate::prelude::*;
 
 pub struct Music {
-    http: Arc<HttpClient>
+    http: HttpClient
 }
 
 impl Music {
-    pub fn new(http_client: Arc<HttpClient>) -> Self {
+    pub fn new(http_client: HttpClient) -> Self {
         Self {
             http: http_client
         }

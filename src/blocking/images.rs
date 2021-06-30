@@ -10,11 +10,11 @@ use crate::model::images::*;
 use crate::prelude::*;
 
 pub struct Images {
-    http: Arc<HttpClient>
+    http: HttpClient
 }
 
 impl Images {
-    pub fn new(http_client: Arc<HttpClient>) -> Self {
+    pub fn new(http_client: HttpClient) -> Self {
         Self {
             http: http_client
         }

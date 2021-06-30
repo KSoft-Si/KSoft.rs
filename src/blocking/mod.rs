@@ -22,25 +22,25 @@ pub struct Client {
     pub bans: Bans,
     pub kumo: Kumo,
     pub music: Music,
-    pub http: Arc<HttpClient>
+    pub http: HttpClient
 }
 
 impl Client {
     pub fn new(token: impl ToString) -> Self {
         let mut default_auth_header = HeaderMap::new();
         default_auth_header.insert("Authorization", format!("Bearer {}", token.to_string()).parse().expect("Cannot parse default headers"));
-        let http_client = Arc::new(HttpClient::builder()
+        let http_client = HttpClient::builder()
             .default_headers(default_auth_header)
             .user_agent("KSoft.rs")
             .build()
-            .expect("Something went wrong when creating http client"));
+            .expect("Something went wrong when creating http client");
 
         Self {
             token: token.to_string(),
-            images: Images::new(Arc::clone(&http_client)),
-            bans: Bans::new(Arc::clone(&http_client)),
-            kumo: Kumo::new(Arc::clone(&http_client)),
-            music: Music::new(Arc::clone(&http_client)),
+            images: Images::new(http_client.clone()),
+            bans: Bans::new(http_client.clone()),
+            kumo: Kumo::new(http_client.clone()),
+            music: Music::new(http_client.clone()),
             http: http_client
         }
     }

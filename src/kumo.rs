@@ -9,11 +9,11 @@ use crate::{
 use crate::model::kumo::*;
 
 pub struct Kumo {
-    http: Arc<HttpClient>
+    http: HttpClient
 }
 
 impl Kumo {
-    pub fn new(http_client: Arc<HttpClient>) -> Self {
+    pub fn new(http_client: HttpClient) -> Self {
         Self {
             http: http_client
         }

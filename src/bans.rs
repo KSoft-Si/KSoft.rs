@@ -6,11 +6,11 @@ use crate::model::bans::*;
 use tracing::warn;
 
 pub struct Bans {
-    http: Arc<HttpClient>
+    http: HttpClient
 }
 
 impl Bans {
-    pub fn new(http_client: Arc<HttpClient>) -> Self {
+    pub fn new(http_client: HttpClient) -> Self {
         Self {
             http: http_client,
         }
