@@ -34,7 +34,7 @@ impl Bans {
                 .as_secs() - 60 * 10;
 
             loop {
-                match client.clone().get(endpoint.as_str())
+                match client.get(endpoint.as_str())
                     .query(&[("timestamp", last_check)])
                     .send() {
                     Ok(res) => {
@@ -77,7 +77,7 @@ impl Bans {
     /// }
     /// ```
     pub fn advanced_paginate(&self, page: u8, per_page: u8) -> HttpResult<BanList, BanError>{
-        let builder = self.http.clone().get(endpoint("/bans/list").as_str())
+        let builder = self.http.get(endpoint("/bans/list").as_str())
             .query(&[("per_page", per_page)])
             .query(&[("page", page)]);
 
@@ -132,7 +132,7 @@ impl Bans {
         if reason.to_string().is_empty() { panic!("Reason param cannot be empty") }
         if proof.to_string().is_empty() { panic!("Proof param cannot be empty") }
 
-        let builder = self.http.clone().post(endpoint("/bans/add").as_str())
+        let builder = self.http.post(endpoint("/bans/add").as_str())
             .form(&BanAddition {
                 user_id,
                 reason: reason.to_string(),
@@ -156,7 +156,7 @@ impl Bans {
     /// }
     /// ```
     pub fn check_ban(&self, user_id: u64) -> reqwest::Result<BanCheckResponse> {
-        let response = self.http.clone().get(endpoint("/bans/check").as_str())
+        let response = self.http.get(endpoint("/bans/check").as_str())
             .query(&[("user", user_id)])
             .send()?;
 
@@ -180,7 +180,7 @@ impl Bans {
     /// }
     /// ```
     pub fn ban_info(&self, user_id: u64) -> HttpResult<BanInfoResponse, BanError> {
-        let builder = self.http.clone().get(endpoint("/bans/info").as_str())
+        let builder = self.http.get(endpoint("/bans/info").as_str())
             .query(&[("user", user_id)]);
 
         make_request::<BanInfoResponse, BanError>(builder)
@@ -203,7 +203,7 @@ impl Bans {
     /// }
     /// ```
     pub fn delete_forcing(&self, user_id: u64) -> HttpResult<BanDeletionResponse, BanError> {
-        let builder = self.http.clone().delete(endpoint("/bans/delete").as_str())
+        let builder = self.http.delete(endpoint("/bans/delete").as_str())
             .query(&[("user", user_id)])
             .query(&[("force", true)]);
 
@@ -227,7 +227,7 @@ impl Bans {
     /// }
     /// ```
     pub fn delete(&self, user_id: u64) -> HttpResult<BanDeletionResponse, BanError> {
-        let builder = self.http.clone().delete(endpoint("/bans/delete").as_str())
+        let builder = self.http.delete(endpoint("/bans/delete").as_str())
             .query(&[("user", user_id)]);
 
         make_request::<BanDeletionResponse, BanError>(builder)

@@ -38,7 +38,7 @@ impl Images {
     pub fn random_image(&self, tag: impl ToString, nsfw: bool) -> HttpResult<Image, ImageError>{
         if tag.to_string().is_empty() { panic!("Tag param cannot be empty") }
 
-        let builder = self.http.clone().get(endpoint("/images/random-image").as_str())
+        let builder = self.http.get(endpoint("/images/random-image").as_str())
             .query(&[("tag", tag.to_string())])
             .query(&[("nsfw", nsfw)]);
 
@@ -56,7 +56,7 @@ impl Images {
     /// }
     /// ```
     pub fn random_meme(&self) -> reqwest::Result<RedditImage>{
-        self.http.clone().get(endpoint("/images/random-meme").as_str())
+        self.http.get(endpoint("/images/random-meme").as_str())
             .send()?
             .json::<RedditImage>()
     }
@@ -71,7 +71,7 @@ impl Images {
     /// }
     /// ```
     pub fn random_aww(&self) -> reqwest::Result<RedditImage>{
-        return self.http.clone().get(endpoint("/images/random-aww").as_str())
+        return self.http.get(endpoint("/images/random-aww").as_str())
             .send()?
             .json::<RedditImage>()
     }
@@ -95,7 +95,7 @@ impl Images {
     pub fn random_reddit(&self, subreddit: impl ToString, remove_nsfw: bool, span: SpanType) -> HttpResult<RedditImage, ImageError>{
         if subreddit.to_string().is_empty() { panic!("You have to specify a subreddit to search in") }
 
-        let builder = self.http.clone().get(endpoint(format!("/images/rand-reddit/{}", subreddit.to_string())).as_str())
+        let builder = self.http.get(endpoint(format!("/images/rand-reddit/{}", subreddit.to_string())).as_str())
             .query(&[("remove_nsfw", remove_nsfw)])
             .query(&[("span", span.to_string())]);
 
@@ -112,7 +112,7 @@ impl Images {
     /// }
     /// ```
     pub fn random_wikihow(&self, nsfw: bool) -> reqwest::Result<WikiHowImage> {
-        return self.http.clone().get(endpoint("/images/random-wikihow").as_str())
+        return self.http.get(endpoint("/images/random-wikihow").as_str())
             .query(&[("nsfw", nsfw)])
             .send()?
             .json::<WikiHowImage>()
@@ -127,7 +127,7 @@ impl Images {
     /// }
     /// ```
     pub fn get_tags(&self) -> reqwest::Result<TagList> {
-        return self.http.clone().get(endpoint("/images/tags").as_str())
+        return self.http.get(endpoint("/images/tags").as_str())
             .send()?
             .json::<TagList>()
     }
@@ -151,7 +151,7 @@ impl Images {
     pub fn get_image(&self, sf: impl ToString) -> HttpResult<Image, ImageError> {
         if sf.to_string().is_empty() { panic!("Snowflake id cannot be empty") }
 
-        let builder = self.http.clone().get(endpoint(format!("/images/image/{}", sf.to_string())).as_str());
+        let builder = self.http.get(endpoint(format!("/images/image/{}", sf.to_string())).as_str());
 
         make_request::<Image, ImageError>(builder)
     }
@@ -168,7 +168,7 @@ impl Images {
     pub fn get_tag(&self, tag: impl ToString) -> reqwest::Result<TagList> {
         if tag.to_string().is_empty() { panic!("Tag cannot be empty") }
 
-        self.http.clone().get(endpoint(format!("/images/tags/{}", tag.to_string())).as_str())
+        self.http.get(endpoint(format!("/images/tags/{}", tag.to_string())).as_str())
             .send()?
             .json::<TagList>()
     }
@@ -183,7 +183,7 @@ impl Images {
     /// }
     /// ```
     pub fn random_nsfw(&self, gifs: bool) -> reqwest::Result<RedditImage> {
-        self.http.clone().get(endpoint("/images/random-nsfw").as_str())
+        self.http.get(endpoint("/images/random-nsfw").as_str())
             .query(&[("gifs", gifs)])
             .send()?
             .json::<RedditImage>()

@@ -40,7 +40,7 @@ impl Music {
                                  limit: u32) -> reqwest::Result<Lyrics> {
         if query.to_string().is_empty() { panic!("Query param cannot be empty") }
 
-        self.http.clone().get(endpoint("/lyrics/search").as_str())
+        self.http.get(endpoint("/lyrics/search").as_str())
             .query(&[("q", query.to_string())])
             .query(&[("text_only", text_only)])
             .query(&[("limit", limit)])
@@ -105,7 +105,7 @@ impl Music {
             recommend_type
         };
 
-        let builder = self.http.clone().post(endpoint("/music/recommendations").as_str())
+        let builder = self.http.post(endpoint("/music/recommendations").as_str())
             .json(&payload);
 
         make_request::<MusicRecommendationsResponse, MusicError>(builder)
@@ -150,7 +150,7 @@ impl Music {
     ///     }
     /// }
     pub fn artist(&self, id: impl Into<u64>) -> HttpResult<Artist, MusicError> {
-        let builder = self.http.clone().get(endpoint(format!("/lyrics/artist/{}/", id.into())).as_str());
+        let builder = self.http.get(endpoint(format!("/lyrics/artist/{}/", id.into())).as_str());
 
         make_request::<Artist, MusicError>(builder)
     }
@@ -171,7 +171,7 @@ impl Music {
     ///     }
     /// }
     pub fn album(&self, id: impl Into<u64>) -> HttpResult<Album, MusicError> {
-        let builder = self.http.clone().get(endpoint(format!("/lyrics/album/{}/", id.into())).as_str());
+        let builder = self.http.get(endpoint(format!("/lyrics/album/{}/", id.into())).as_str());
 
         make_request::<Album, MusicError>(builder)
     }
@@ -192,7 +192,7 @@ impl Music {
     ///     }
     /// }
     pub fn track(&self, id: impl Into<u64>) -> HttpResult<Track, MusicError> {
-        let builder = self.http.clone().get(endpoint(format!("/lyrics/track/{}/", id.into())).as_str());
+        let builder = self.http.get(endpoint(format!("/lyrics/track/{}/", id.into())).as_str());
 
         make_request::<Track, MusicError>(builder)
     }
