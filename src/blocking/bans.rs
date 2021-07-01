@@ -5,7 +5,6 @@ use crate::{
 };
 use super::{make_request, EventHandler};
 use reqwest::blocking::{Client as HttpClient};
-use std::sync::Arc;
 use crate::model::bans::*;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tracing::warn;

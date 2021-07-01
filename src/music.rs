@@ -1,5 +1,4 @@
 use reqwest::{Client as HttpClient};
-use std::sync::Arc;
 use crate::{
     make_request,
     endpoint,

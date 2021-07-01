@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use reqwest::header::HeaderMap;
 use serde::de::DeserializeOwned;
 use crate::{HttpError, HttpResult};

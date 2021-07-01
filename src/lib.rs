@@ -7,8 +7,6 @@ use async_trait::async_trait;
 #[cfg(feature = "default")]
 use reqwest::{Client as HttpClient, RequestBuilder};
 #[cfg(feature = "default")]
-use std::sync::Arc;
-#[cfg(feature = "default")]
 use reqwest::header::HeaderMap;
 #[cfg(feature = "default")]
 use serde::de::DeserializeOwned;
@@ -103,7 +101,7 @@ impl Client {
 
 #[cfg(feature = "serenity")]
 impl TypeMapKey for Client {
-    type Value = Arc<Self>;
+    type Value = std::sync::Arc<Self>;
 }
 
 #[cfg(feature = "default")]

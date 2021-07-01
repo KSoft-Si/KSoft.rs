@@ -1,6 +1,5 @@
 use crate::{make_request, endpoint, model::*, HttpResult, EventHandler};
 use reqwest::{Client as HttpClient};
-use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 use crate::model::bans::*;
 use tracing::warn;
