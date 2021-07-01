@@ -124,8 +124,8 @@ impl Music {
     ///     }
     // }
     /// ```
-    pub fn recommendations(&self, tracks: ProviderType) -> HttpResult<MusicRecommendationsResponse, MusicError> {
-        self.advanced_recommendations(tracks, None, None, None)
+    pub fn recommendations(&self, provider: ProviderType) -> HttpResult<MusicRecommendationsResponse, MusicError> {
+        self.advanced_recommendations(provider, None, None, None)
     }
 
     /// Get artist information by a given ID
