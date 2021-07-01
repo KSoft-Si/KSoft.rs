@@ -1,7 +1,7 @@
 use serde::Deserialize;
 
 macro_rules! unsuccessful_response {
-    ($($s: ident,)*) => {
+    ($($s: ident),*) => {
         $(
             impl std::fmt::Display for $s {
                 fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -48,5 +48,5 @@ unsuccessful_response! {
     BanError,
     ImageError,
     KumoError,
-    MusicError,
+    MusicError
 }
