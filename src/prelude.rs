@@ -22,6 +22,20 @@ impl Display for ProviderType {
     }
 }
 
+impl ProviderType {
+    /// Extracts the actual vector inside provider without copying it
+    pub(crate) fn extract(&mut self) -> Vec<String> {
+        use std::mem::take;
+
+        match self {
+            ProviderType::Youtube(d) => take(d),
+            ProviderType::YoutubeIDs(d) => take(d),
+            ProviderType::YoutubeTitles(d) => take(d),
+            ProviderType::SpotifyIDs(d) => take(d),
+        }
+    }
+}
+
 pub enum SpanType {
     Hour,
     Day,

@@ -86,19 +86,14 @@ impl Music {
     ///     }
     // }
     /// ```
-    pub fn advanced_recommendations(&self, tracks: ProviderType, youtube_token: Option<String>, limit: Option<u32>, recommend_type: Option<String>) -> HttpResult<MusicRecommendationsResponse, MusicError>{
-        let track_vec = match &tracks {
-            ProviderType::Youtube(t) => t.clone(),
-            ProviderType::YoutubeIDs(t) => t.clone(),
-            ProviderType::YoutubeTitles(t) => t.clone(),
-            ProviderType::SpotifyIDs(t) => t.clone()
-        };
+    pub fn advanced_recommendations(&self, mut provider: ProviderType, youtube_token: Option<String>, limit: Option<u32>, recommend_type: Option<String>) -> HttpResult<MusicRecommendationsResponse, MusicError>{
+        let track_vec = provider.extract();
 
         if track_vec.len() < 1 { panic!("Vector contents cannot be empty") }
 
         let payload = MusicRecommendations {
             tracks: track_vec,
-            provider: tracks.to_string(),
+            provider: provider.to_string(),
             youtube_token,
             limit,
             recommend_type
